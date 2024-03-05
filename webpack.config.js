@@ -15,6 +15,9 @@ module.exports = {
     devtool: modeConf ? 'inline-source-map' : false,
     devServer: {
         static: './public',
+        client: {
+            logging: 'none',
+        },
     },
 
     plugins: [
