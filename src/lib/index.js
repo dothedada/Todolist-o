@@ -1,8 +1,8 @@
 import './reset.css'; // reset de estilos
 import './styles.css'; // estilos del proyecto
 
+// Expresions dictionary
 const exp = {
-    // Expresions dictionary
     project: /@[a-z0-9-]+/gi,
     category: /#[a-z0-9-]+/gi,
 
@@ -17,6 +17,7 @@ const exp = {
 	recurrent: /(durante|todos\slos|cada)\s(((lun|mart|mi.rcol|juev|viern)es|(s.bado|domingo))|[0-9]+\s(d.as|meses))/i,
 	recurrentLimit: /[0-9]\sveces/i,
     },
+    eng: {},
 };
 
 // const task = {
@@ -34,50 +35,57 @@ const exp = {
 //     done: true,
 //     creationDate: 'date',
 // };
+//
+const timerToSeconds = (tArr) => {
+    const unit = /h/i.test(tArr[3][0]) ? 3600 : 60;
+    return tArr[2] * unit;
+};
 
 const getPromptData = (str) => {
+    const task = {};
     const prompt = str.replace(/\s{2,}/g, ' ');
-
     const project = prompt.match(exp.project);
     const category = prompt.match(exp.category);
-    const importantUrgent = prompt.match(exp.esp.relevance);
+    let relevance = prompt.match(exp.esp.relevance);
+    relevance = relevance ? relevance.pop() : '';
     const timer = prompt.match(exp.esp.timer);
 
-    const recurrent = prompt.match(exp.esp.recurrent)
-    const recurrentLimit = prompt.match(exp.esp.recurrentLimit)
-
+    const recurrent = prompt.match(exp.esp.recurrent);
+    const recurrentLimit = prompt.match(exp.esp.recurrentLimit);
     const dueDate =
         prompt.match(exp.esp.date1) ||
         prompt.match(exp.esp.date4) ||
         prompt.match(exp.esp.date3) ||
         prompt.match(exp.esp.date2);
 
-    console.log(
-	'prj:',
-        project,
-        'cat:',
-        category,
-        'imp:',
-        importantUrgent,
-        'tim:',
-        timer,
-	'due:',
-	dueDate,
-	'rec:',
-	recurrent,
-	'times:',
-	recurrentLimit,
 
+    task.promt = prompt;
+    task.project = project ? project[0] : false;
+    task.category = category ? category.slice(0, 2) : false;
+    task.important = /\*|important/i.test(relevance);
+    task.urgent = /!|urgente/i.test(relevance);
+    task.timer = timer ? timerToSeconds(timer) : false;
+
+    const setDate = new Date()
+    task.currentDate = `${setDate.getDay()}/${setDate.getMonth()}/${setDate.getFullYear()}`
+    task.done = false
+
+    console.log(
+        'due:',
+        dueDate,
+        'rec:',
+        recurrent,
+        'times:',
+        recurrentLimit,
     );
 
-    // return {
-    //     prompt,
-    // };
+    return task;
 };
 
 getPromptData(
-    'holi  12/mar ca   re @verga sucia t:2h #emb#ol1asdf tengo 1.5 minutos 3 veces',
+    'holi  12/mar ca   re @verga sucia t:2h #emb#ol1asdf tengo 1.5 minutos 3 * veces',
 );
 getPromptData(
-    '! Explore mañana re*sults * w!ith !the de este #domingo en 8 días below. Replace & List output todos los lunes custom results. Details lists capture @gr213oups. Explain urgente describes your expression in plain English.',
+    '! Explore mañana re*sults * w!ith !the de este #domingo en 8 días below. Replace & List output todos los lunes custom results. Details lists capture @gr213oups. Explain urgente describes your expression in plain English. !* urgente',
 );
+getPromptData('! sacar las bolsas de la basura #casa tengo 10 minutos,');
