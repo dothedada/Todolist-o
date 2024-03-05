@@ -1,7 +1,7 @@
 import './reset.css'; // reset de estilos
 import './styles.css'; // estilos del proyecto
 
-const regex = {
+const exp = { // Expresions dictionary
     project: /@[a-z0-9-]+/gi,
     category: /#[a-z0-9-]+/gi,
 
@@ -12,9 +12,9 @@ const regex = {
 };
 
 // const task = {
-//     prompt: 'str',
+//     prompt: 'str', //
 //     task: 'str',
-//     project: '@str',
+//     project: '@str', 
 //     category: ['#str', '#str'],
 //     dueDate: 'date',
 //     important: true,
@@ -29,10 +29,11 @@ const regex = {
 
 const getPromptData = (str) => {
 	const prompt = str.replace(/\s{2,}/g, ' ')
-    const project = prompt.match(regex.project);
-    const category = prompt.match(regex.category);
-    const importantUrgent = prompt.match(regex.esp.relevance);
-	const timer = prompt.match(regex.esp.timer)
+
+    const project = prompt.match(exp.project);
+    const category = prompt.match(exp.category);
+    const importantUrgent = prompt.match(exp.esp.relevance);
+	const timer = prompt.match(exp.esp.timer)
 
     console.log(
 		prompt,
@@ -49,5 +50,5 @@ const getPromptData = (str) => {
 
 getPromptData('holi        ca   re @verga sucia t:2h #emb#ol1asdf tengo 1.5 minutos');
 getPromptData(
-    'Explore re*sults * w!ith !the Tools below. Replace & List output custom results. Details lists capture @gr213oups. Explain urgente describes your expression in plain English.',
+    '! Explore re*sults * w!ith !the Tools below. Replace & List output custom results. Details lists capture @gr213oups. Explain urgente describes your expression in plain English.',
 );
