@@ -12,8 +12,10 @@ const exp = {
         timer: /(t:|tengo)\s?([0-9.,]+)\s?(minutos|min|m|horas|h)\b/i,
         date1: /([0-9]{1,2})(\/[0-9]{1,2}|\sde\s[ad-fjm-os][a-jl-vy-z]{3,9})/i,
 	date2: /(pasado\s)?(hoy|ma.ana)/i,
-	date3: /(el\s|este\s|el\spr.ximo\s)([lmjv](un|art|i.rcol|uev|iern)es|(s.bado|domingo))/i,
-	date4: /(dentro\sde\s|de\s(hoy\s|ma.ana\s|este\s([lmjv](un|art|i.rcol|uev|iern)es|(s.bado|domingo))(\sen\s)?))((en\s)?([0-9]+))(\sd.as|\ssemanas|\smeses)?/i,
+	date3: /(el\s|este\s|el\spr.ximo\s)((lun|mart|mi.rcol|juev|viern)es|(s.bado|domingo))/i,
+	date4: /(dentro\sde\s|de\s(hoy\s|ma.ana\s|este\s((lun|mart|mi.rcol|juev|viern)es|(s.bado|domingo))(\sen\s)?))((en\s)?([0-9]+))(\sd.as|\ssemanas|\smeses)?/i,
+	recurrent: /(durante|todos\slos|cada)\s(((lun|mart|mi.rcol|juev|viern)es|(s.bado|domingo))|[0-9]+\s(d.as|meses))/i,
+	recurrentLimit: /[0-9]\sveces/i,
     },
 };
 
@@ -41,6 +43,9 @@ const getPromptData = (str) => {
     const importantUrgent = prompt.match(exp.esp.relevance);
     const timer = prompt.match(exp.esp.timer);
 
+    const recurrent = prompt.match(exp.esp.recurrent)
+    const recurrentLimit = prompt.match(exp.esp.recurrentLimit)
+
     const dueDate =
         prompt.match(exp.esp.date1) ||
         prompt.match(exp.esp.date4) ||
@@ -48,6 +53,7 @@ const getPromptData = (str) => {
         prompt.match(exp.esp.date2);
 
     console.log(
+	'prj:',
         project,
         'cat:',
         category,
@@ -56,7 +62,12 @@ const getPromptData = (str) => {
         'tim:',
         timer,
 	'due:',
-	dueDate
+	dueDate,
+	'rec:',
+	recurrent,
+	'times:',
+	recurrentLimit,
+
     );
 
     // return {
@@ -65,8 +76,8 @@ const getPromptData = (str) => {
 };
 
 getPromptData(
-    'holi mañana  de mañana en 8 días     ca   re @verga sucia mañana t:2h #emb#ol1asdf tengo 1.5 minutos',
+    'holi  12/mar ca   re @verga sucia t:2h #emb#ol1asdf tengo 1.5 minutos 3 veces',
 );
 getPromptData(
-    '! Explore mañana re*sults * w!ith !the de este domingo en 8 días below. Replace & List output custom results. Details lists capture @gr213oups. Explain urgente describes your expression in plain English.',
+    '! Explore mañana re*sults * w!ith !the de este #domingo en 8 días below. Replace & List output todos los lunes custom results. Details lists capture @gr213oups. Explain urgente describes your expression in plain English.',
 );
