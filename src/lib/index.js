@@ -17,71 +17,60 @@ import { exp, daysWeek, months } from './data';
 //     done: true,
 //     creationDate: 'date',
 // };
-//
 const timerToSeconds = (tArr) => {
     const unit = /h/i.test(tArr[3][0]) ? 3600 : 60;
     return tArr[2] * unit;
 };
 
-// const hoy = new Date();
-// hoy.setDate(hoy.getDate() + 8);
+class Task {
+    constructor(prompt) {
+        this.parseTask(prompt);
+    }
 
-const getPromptData = (str) => {
-    const task = {};
-    const prompt = str.replace(/\s{2,}/g, ' ');
+    parseTask(prompt) {
+        this.prompt = prompt.replace(/\s{1,}/g, ' ');
 
-    const project = prompt.match(exp.project);
-    const category = prompt.match(exp.category);
-    const relevance = prompt.match(exp.es.relevance)
-        ? prompt.match(exp.es.relevance).pop()
-        : '';
-    const timer = prompt.match(exp.es.timer);
+        this.project = exp.project.test(this.prompt)
+            ? this.prompt.match(exp.project)[0] // 1 por tarea
+            : '';
 
-    const recurrent = () => {
-        if (!prompt.match(exp.es.loopDef)) return false;
-        const period = prompt.match(exp.es.loopDef);
+        this.category = exp.category.test(this.prompt)
+            ? this.prompt.match(exp.category).slice(0, 2) // 2 por tarea max
+            : '';
 
-	if (/t/i.test(period[1][0])) return period[2]
+        if (exp.es.relevance.test(this.prompt)) {
+            this.important = /\*|^i/i.test(
+                this.prompt.match(exp.es.relevance).pop(),
+            );
+            this.urgent = !this.important;
+        } else {
+            this.important = false;
+            this.urgent = false;
+        }
 
+        this.timer = exp.es.timer.test(this.prompt)
+            ? timerToSeconds(this.prompt.match(exp.es.timer))
+            : false;
+        this.timerPast = this.timer;
+    }
 
-	return period[1][0]
+    readTask() {
+        console.table(this);
+    }
+}
 
-	// NOTE: a partir del día actual, marque el día que detona la tarea... o marca directa... o el día del mes (ojo fin de mes: 28,29,30,31)
-
-    };
-
-    // const recurrentLimit = prompt.match(exp.es.loopCount);
-    // const dueDate =
-    //     prompt.match(exp.es.date1) ||
-    //     prompt.match(exp.es.date4) ||
-    //     prompt.match(exp.es.date3) ||
-    //     prompt.match(exp.es.date2);
-
-    task.promt = prompt;
-    task.project = project ? project[0] : false;
-    task.category = category ? category.slice(0, 2) : false;
-    task.important = /\*|important/i.test(relevance);
-    task.urgent = /!|urgente/i.test(relevance);
-    task.timer = timer ? timerToSeconds(timer) : false;
-    task.recurrent = recurrent();
-    task.while = 'loopCount || veces(num), días(num), mes(noviembre, enero) , meses (num)'
-
-    const setDate = new Date();
-    task.currentDate = `${setDate.getDate()}/${setDate.getMonth()}/${setDate.getFullYear()}`;
-    task.done = false;
-
-    console.table(task);
-
-    return task;
-};
-
-getPromptData(
-    'holi  12/mar ca todos los lunes  re @verga sucia t:2h #emb#ol1asdf tengo 1.5 minutos 3 * veces',
+const as = new Task(
+    'mañiño   @holi  #carepa tengo 6 minutos  asd  #chimuelo #carajillo urgEnte as',
 );
-getPromptData(
-    '! Explore mañana re*sults * w!ith !the de este #domingo en 8 días below. Replace & List output todos cada 8 días results. Details lists capture @gr213oups. Explain urgente describes your expression in plain English. !* urgente',
-);
-getPromptData(
-    '! sacar las bolsas de la durante 3 meses basura #casa tengo 10 minutos,',
-);
-getPromptData('Hakuna matata todos los 15 de febrero');
+
+as.readTask();
+// getPromptData(
+//     'holi  12/mar ca todos los lunes  re @verga sucia t:2h #emb#ol1asdf tengo 1.5 minutos 3 * veces',
+// );
+// getPromptData(
+//     '! Explore mañana re*sults * w!ith !the de este #domingo en 8 días below. Replace & List output todos cada 8 días results. Details lists capture @gr213oups. Explain urgente describes your expression in plain English. !* urgente',
+// );
+// getPromptData(
+//     '! sacar las bolsas de la durante 3 meses basura #casa tengo 10 minutos,',
+// );
+// getPromptData('Hakuna matata todos los 15 de febrero');
