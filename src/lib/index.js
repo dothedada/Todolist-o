@@ -2,25 +2,34 @@ import './reset.css'; // reset de estilos
 import './styles.css'; // estilos del proyecto
 import { exp, daysWeek, months } from './data';
 
-// const task = {
-//     prompt: 'str', //
-//     task: 'str',
-//     project: '@str',
-//     category: ['#str', '#str'],
-//     dueDate: 'date',
-//     important: true,
-//     urgent: false,
-//     timerSeconds: 120,
-//     recurrent: true,
-//     recurrenceTime: 'string',
-//     recurrentCount: 12,
-//     done: true,
-//     creationDate: 'date',
-// };
-const timerToSeconds = (tArr) => {
-    const unit = /h/i.test(tArr[3][0]) ? 3600 : 60;
-    return tArr[2] * unit;
+const timeToSeconds = (time, unit) => {
+    const seconds = /h/i.test(unit) ? 3600 : 60;
+    return time * seconds;
 };
+
+const debounce = (callback, wait = 100) => {
+    let timer;
+    return () => {
+        clearTimeout(timer);
+        timer = setTimeout(callback, wait);
+    };
+};
+
+const taskEvent = () => {
+    const events = {}
+
+    const pub = (event, value) => {
+        if (!events[event]) return
+        events[event].forEach(callback => callback(value))
+    }
+
+    const sub = (event, callback) => {
+        if (!events[event]) events[event] = []
+        events[event].push(callback)
+    }
+
+    return { pub, sub }
+}
 
 class Task {
     constructor(prompt) {
@@ -49,18 +58,34 @@ class Task {
         }
 
         this.timer = exp.es.timer.test(this.prompt)
-            ? timerToSeconds(this.prompt.match(exp.es.timer))
+            ? timeToSeconds(
+                  this.prompt.match(exp.es.timer)[2],
+                  this.prompt.match(exp.es.timer)[3],
+              )
             : false;
-        this.timerPast = this.timer;
+        this.timerPast = this.timer ? 0 : false;
+
+        this.recurrent = exp.es.loopAbsolute.test(this.prompt);
+        this.recurrentPeriod = this.recurrent
+            ? this.prompt.match(exp.es.loopAbsolute)
+            : false;
+        this.recurrentCount = this.recurrent ? 0 : false;
+        this.recurrentDateDefinition = false;
+        this.recurrentCount = false;
+        this.recurrentCountStart = false;
+    }
+
+    nextRecurrentDate() {
+        console.log(this.recurrentDateDefinition);
     }
 
     readTask() {
-        console.table(this);
+        console.log(JSON.stringify(this, null, 2));
     }
 }
 
 const as = new Task(
-    'mañiño   @holi  #carepa tengo 6 minutos  asd  #chimuelo #carajillo urgEnte as',
+    'mañiño   @holi  #carepa tengo 1 hora todos los 5 de cada mes lunes asd #chimuelo #carajillo urgEnte as',
 );
 
 as.readTask();
