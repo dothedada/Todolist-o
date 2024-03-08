@@ -6,12 +6,11 @@ const exp = {
     es: {
         relevance: /[*!]\B|(importante|urgente)\b/gi,
         timer: /(t:|tengo) ?([0-9.,]+) ?(minutos|min|m|horas?|h)\b/i,
-        // NOTE: todos los 5 de cada mes
-        // si hay definido día, la fecha de la tarea la da el loop
 	loopAbsolute: /todos los (lunes|martes|mi.rcoles|jueves|viernes|s.bado|domingo|[0-9]{1,2})/i,
-	loopRelative: /cada ([0-9]{1,2}) (d.as|meses)?/i,
+	loopRelative: /cada ([0-9]{1,2}) (d.as|semanas|meses)?/i,
 	loopCount: /[0-9] veces/i,
 
+        // WARN: revisar si la abreviación de los meses puede causar algún error
         date1: /([0-9]{1,2})(\/[0-9]{1,2}| de [ad-fjm-os][a-jl-vy-z]{3,9})/i,
 	date2: /(pasado )?(hoy|ma.ana)/i,
 	date3: /(el |este |el pr.ximo )((lunes|martes|mi.rcoles|jueves|viernes|s.bado|domingo))/i,
@@ -34,10 +33,6 @@ const daysWeek = {
 };
 const months = {
     es: [
-        'enero',
-        'febrero',
-        'marzo',
-        'abril',
         'enero',
         'febrero',
         'marzo',

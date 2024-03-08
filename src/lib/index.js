@@ -10,6 +10,7 @@ class Task {
     }
 
     parseTask(prompt) {
+        this.originalPrompt = prompt;
         this.prompt = prompt
             .replace(/\s{1,}/g, ' ')
             .toLowerCase()
@@ -23,6 +24,7 @@ class Task {
         // NOTE: función para remover acentos del prompt
         // string.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         // descartada porque también afectaba la ñ
+        this.userTask = '';
 
         this.project = exp.project.test(this.prompt)
             ? this.prompt.match(exp.project)[0]
@@ -54,41 +56,64 @@ class Task {
             exp.es.loopAbsolute.test(this.prompt) ||
             exp.es.loopRelative.test(this.prompt);
 
-        this.dueDate = this.nextRecurrentDate() || 'holi';
+        this.dueDate = this.nextRecurrentDate() || this.getFixedDate();
+    }
+
+    getFixedDate() {
+        const dueDate = new Date();
+
+        if (this.prompt.match(exp.es.date1)) {
+            const day = +this.prompt.match(exp.es.date1)[1];
+            let month = this.prompt
+                .match(exp.es.date1)[2]
+                .replace(/ de |\//g, '');
+            console.log(month);
+            month = /\d/.test(month)
+                ? +month - 1
+                : months.es.findIndex(
+                      (m) => m.slice(0, 2) === month.slice(0, 2),
+                  );
+
+            dueDate.setDate(day);
+            dueDate.setMonth(month);
+            if (new Date() > dueDate)
+                dueDate.setFullYear(dueDate.getFullYear() + 1);
+            return dueDate
+        }
     }
 
     nextRecurrentDate() {
         if (!exp.es.loopAbsolute.test(this.prompt)) return false;
+
         const nextDue = new Date();
         const userDate = this.prompt.match(exp.es.loopAbsolute);
 
         if (!/\d/.test(userDate[0])) {
-            const dueDay = daysWeek.es.findIndex(
+            const dayIndex = daysWeek.es.findIndex(
                 (day) => day.slice(0, 2) === userDate[1].slice(0, 2),
             );
-            if (dueDay < nextDue.getDay()) {
-                nextDue.setDate(
-                    nextDue.getDate() + dueDay + (7 - nextDue.getDay()),
-                );
-            } else {
-                nextDue.setDate(
-                    nextDue.getDate() + (dueDay - nextDue.getDay()),
-                );
-            }
+
+            nextDue.setDate(
+                dayIndex < nextDue.getDay()
+                    ? nextDue.getDate() + dayIndex + (7 - nextDue.getDay())
+                    : nextDue.getDate() + (dayIndex - nextDue.getDay()),
+            );
         } else {
-            // nextDue.setMonth(1);
             const lastDayMonth = new Date(
                 nextDue.getFullYear(),
                 nextDue.getMonth() + 1,
                 0,
             ).getDate();
 
-            nextDue.setDate(+userDate[1] > lastDayMonth ? lastDayMonth : +userDate[1])
-            nextDue.setMonth(nextDue.getDate() < new Date().getDate() ? nextDue.getMonth() + 1 : nextDue.getMonth() )
+            nextDue.setDate(
+                +userDate[1] > lastDayMonth ? lastDayMonth : +userDate[1],
+            );
+            nextDue.setMonth(
+                nextDue.getDate() < new Date().getDate()
+                    ? nextDue.getMonth() + 1
+                    : nextDue.getMonth(),
+            );
         }
-
-        console.log(nextDue, userDate);
-
         return nextDue;
     }
 
@@ -98,7 +123,7 @@ class Task {
 }
 
 const as = new Task(
-    'mañiño   @holi  #carepa tengo 1 hora todos los 3 de cada més asd #chimuelo #carajillo urgEnte as',
+    '@vida #casa todos el 13 de enerotengo que sacar áéíóúññññ la basura *',
 );
 
 as.readTask();
