@@ -12,7 +12,7 @@ const exp = {
 
         // WARN: revisar si la abreviación de los meses puede causar algún error
         date1: /([0-9]{1,2})(\/[0-9]{1,2}| de [ad-fjm-os][a-jl-vy-z]{3,9})/i,
-	date2: /(pasado )?(hoy|ma.ana)/i,
+	date2: /(pasado )?(hoy |ma.ana )/i,
 	date3: /(el |este |el pr.ximo )((lunes|martes|mi.rcoles|jueves|viernes|s.bado|domingo))/i,
 	date4: /(dentro de |de (hoy |ma.ana |este ((lunes|martes|mi.rcoles|jueves|viernes|s.bado|domingo))( en )?))((en )?([0-9]+))( d.as| semanas| meses)?/i,
     },

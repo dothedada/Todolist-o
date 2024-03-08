@@ -60,7 +60,7 @@ class Task {
     }
 
     getFixedDate() {
-        const dueDate = new Date();
+        const due = new Date();
 
         if (this.prompt.match(exp.es.date1)) {
             const day = +this.prompt.match(exp.es.date1)[1];
@@ -74,11 +74,18 @@ class Task {
                       (m) => m.slice(0, 2) === month.slice(0, 2),
                   );
 
-            dueDate.setDate(day);
-            dueDate.setMonth(month);
-            if (new Date() > dueDate)
-                dueDate.setFullYear(dueDate.getFullYear() + 1);
-            return dueDate
+            due.setDate(day);
+            due.setMonth(month);
+            if (new Date() > due)
+                due.setFullYear(due.getFullYear() + 1);
+            return due;
+        }
+
+        if (this.prompt.match(exp.es.date2)) {
+            const relativeDay = this.prompt.match(exp.es.date2)[0];
+            if (/pasado/i.test(relativeDay)) due.setDate(due.getDate() + 1)
+            if (/ma.ana/i.test(relativeDay)) due.setDate(due.getDate() + 1)
+            return due
         }
     }
 
@@ -123,7 +130,7 @@ class Task {
 }
 
 const as = new Task(
-    '@vida #casa todos el 13 de enerotengo que sacar áéíóúññññ la basura *',
+    '@vida #casa todos el quenemañanaroe pasado mañana sacar áéíóúññññ la basura *',
 );
 
 as.readTask();
