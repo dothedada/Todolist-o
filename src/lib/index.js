@@ -1,6 +1,6 @@
 // import './reset.css'; // reset de estilos
 // import './styles.css'; // estilos del proyecto
-import { use } from 'browser-sync';
+// import { use } from 'browser-sync';
 import { exp, daysWeek, months } from './data.js';
 import { timeToSeconds } from './misc.js';
 
@@ -80,38 +80,54 @@ class Task {
         }
 
         if (this.prompt.match(exp.es.date2)) {
-            const day = this.prompt.match(exp.es.date2)[0];
+            const day = this.prompt.match(exp.es.date2);
+            console.log(day);
 
-            if (/pasado/i.test(day)) dueDate.setDate(dueDate.getDate() + 1);
-            if (/ma.ana/i.test(day)) dueDate.setDate(dueDate.getDate() + 1);
-            
+            let daysBetween = day[5] ?? 'dia';
+            if (daysBetween.slice(0, 3) === 'dia') daysBetween = '1';
+            if (daysBetween.slice(0, 3) === 'sem') daysBetween = '7';
+            daysBetween = +daysBetween * +day[0].match(/\d+/);
+            if (!/sem/i.test(day[0])) daysBetween -= 1 // NOTE: quita el día que las personas no tienen en cuenta
+            if (/ma.ana/i.test(day[0])) daysBetween += + 1;
+
+            // Calcular el día de inicio del conteo
+            if (/de e/i.test(day)) {
+                const dayIndex = this.getIndex(daysWeek.es, day[3]);
+                dueDate.setDate(
+                    dayIndex < dueDate.getDay()
+                        ? dueDate.getDate() + dayIndex + (7 - dueDate.getDay())
+                        : dueDate.getDate() + (dayIndex - dueDate.getDay()),
+                );
+            }
+            dueDate.setDate(dueDate.getDate() + daysBetween);
+
             return dueDate;
         }
 
         if (this.prompt.match(exp.es.date3)) {
-            const day = this.prompt.match(exp.es.date3)[0];
-            const dayIndex = this.getIndex(
-                daysWeek.es,
-                this.prompt.match(exp.es.date3)[2],
-            );
-            
+            const day = this.prompt.match(exp.es.date3);
+            const dayIndex = this.getIndex(daysWeek.es, day[2]);
+
             dueDate.setDate(
                 dayIndex < dueDate.getDay()
                     ? dueDate.getDate() + dayIndex + (7 - dueDate.getDay())
                     : dueDate.getDate() + (dayIndex - dueDate.getDay()),
             );
-            if (/proximo/i.test(day)) dueDate.setDate(dueDate.getDate() + 7);
+            if (/proximo/i.test(day[0])) dueDate.setDate(dueDate.getDate() + 7);
 
             return dueDate;
         }
 
         if (this.prompt.match(exp.es.date4)) {
+            const day = this.prompt.match(exp.es.date2)[0];
 
+            if (/pasado/i.test(day)) dueDate.setDate(dueDate.getDate() + 1);
+            if (/ma.ana/i.test(day)) dueDate.setDate(dueDate.getDate() + 1);
 
             return dueDate;
         }
 
-        return false
+        return false;
     }
 
     getIndex(dataSource, compareTo) {
@@ -159,8 +175,6 @@ class Task {
     }
 }
 
-const as = new Task(
-    '@vida #casa todos el próximo viernes sacar áéíóúññññ la basura *',
-);
+const as = new Task('@vida #casa de mañana en 2 semanas  sacar la basura *');
 
 as.readTask();
