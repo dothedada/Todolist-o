@@ -175,6 +175,7 @@ class Task {
     }
 }
 
-const as = new Task('@vida #casa de mañana en 2 semanas  sacar la basura *');
+const as = new Task(window.prompt('qué quieres hacer?'))
+// const as = new Task('@vida #casa de mañana en 2 semanas  sacar la basura *');
 
 as.readTask();
