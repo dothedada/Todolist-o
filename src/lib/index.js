@@ -60,33 +60,64 @@ class Task {
     }
 
     getFixedDate() {
-        const due = new Date();
+        const dueDate = new Date();
 
         if (this.prompt.match(exp.es.date1)) {
             const day = +this.prompt.match(exp.es.date1)[1];
             let month = this.prompt
                 .match(exp.es.date1)[2]
                 .replace(/ de |\//g, '');
-            console.log(month);
+
             month = /\d/.test(month)
                 ? +month - 1
-                : months.es.findIndex(
-                      (m) => m.slice(0, 2) === month.slice(0, 2),
-                  );
+                : this.getIndex(months.es, month);
+            dueDate.setDate(day);
+            dueDate.setMonth(month);
+            if (new Date() > dueDate)
+                dueDate.setFullYear(dueDate.getFullYear() + 1);
 
-            due.setDate(day);
-            due.setMonth(month);
-            if (new Date() > due)
-                due.setFullYear(due.getFullYear() + 1);
-            return due;
+            return dueDate;
         }
 
         if (this.prompt.match(exp.es.date2)) {
-            const relativeDay = this.prompt.match(exp.es.date2)[0];
-            if (/pasado/i.test(relativeDay)) due.setDate(due.getDate() + 1)
-            if (/ma.ana/i.test(relativeDay)) due.setDate(due.getDate() + 1)
-            return due
+            const day = this.prompt.match(exp.es.date2)[0];
+
+            if (/pasado/i.test(day)) dueDate.setDate(dueDate.getDate() + 1);
+            if (/ma.ana/i.test(day)) dueDate.setDate(dueDate.getDate() + 1);
+            
+            return dueDate;
         }
+
+        if (this.prompt.match(exp.es.date3)) {
+            const day = this.prompt.match(exp.es.date3)[0];
+            const dayIndex = this.getIndex(
+                daysWeek.es,
+                this.prompt.match(exp.es.date3)[2],
+            );
+            
+            dueDate.setDate(
+                dayIndex < dueDate.getDay()
+                    ? dueDate.getDate() + dayIndex + (7 - dueDate.getDay())
+                    : dueDate.getDate() + (dayIndex - dueDate.getDay()),
+            );
+            if (/proximo/i.test(day)) dueDate.setDate(dueDate.getDate() + 7);
+
+            return dueDate;
+        }
+
+        if (this.prompt.match(exp.es.date4)) {
+
+
+            return dueDate;
+        }
+
+        return false
+    }
+
+    getIndex(dataSource, compareTo) {
+        return dataSource.findIndex(
+            (element) => element.slice(0, 2) === compareTo.slice(0, 2),
+        );
     }
 
     nextRecurrentDate() {
@@ -96,9 +127,7 @@ class Task {
         const userDate = this.prompt.match(exp.es.loopAbsolute);
 
         if (!/\d/.test(userDate[0])) {
-            const dayIndex = daysWeek.es.findIndex(
-                (day) => day.slice(0, 2) === userDate[1].slice(0, 2),
-            );
+            const dayIndex = this.getIndex(daysWeek.es, userDate[1]);
 
             nextDue.setDate(
                 dayIndex < nextDue.getDay()
@@ -121,6 +150,7 @@ class Task {
                     : nextDue.getMonth(),
             );
         }
+
         return nextDue;
     }
 
@@ -130,7 +160,7 @@ class Task {
 }
 
 const as = new Task(
-    '@vida #casa todos el quenemañanaroe pasado mañana sacar áéíóúññññ la basura *',
+    '@vida #casa todos el próximo viernes sacar áéíóúññññ la basura *',
 );
 
 as.readTask();
