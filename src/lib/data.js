@@ -1,11 +1,12 @@
 const exp = {
     project: /\B(?:@[a-zA-ZÀ-ÿ]+)/g,
     category: /\B(?:#[a-zA-ZÀ-ÿ]+)/g,
-    mailOrUrl: /([a-z0-9\-|.]+@[a-z0-9\-]+\.[a-z0-9\-.]+)|((?:https?:\/\/)?(?:[a-z0-9\-]+\.)?([a-z0-9\-]{1,63}\.[a-z0-9]+)(?:\/[\/\w\d\-\+\.\*$%?#]+)?)/ig,
+    mail: /[a-z0-9\-|.]+@[a-z0-9\-]+\.[a-z0-9\-.]+/ig,
+    url: /\b(?<!@)((http(s)?:\/\/)?([a-z0-9\-]+\.)?([a-z0-9\-]{1,63}\.[a-z0-9]+)(\/[\/\w\d\-\+\.\*$%?#]+)?)(?!@)\b/ig,
 
     // prettier-ignore
     es: {
-        relevance: /[*!]\B|(importante|urgente)\b/gi,
+        relevance: /\B[*!]\B|(importante|urgente)\b/gi,
         timer: /(t:|tengo) ?([0-9.,]+) ?(minutos?|min|m|horas?|h)\b/i,
 	loopAbsolute: /todos los (lunes|martes|mi.rcoles|jueves|viernes|s.bado|domingo|[0-9]{1,2})/i,
 	loopRelative: /cada ([0-9]{1,2}) (dia|semana|mes)/i,

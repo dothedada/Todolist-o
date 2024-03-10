@@ -3,7 +3,6 @@
 import { exp, daysWeek, months } from './data.js';
 
 // TODO:
-// 1- crear el reductor de urls
 // 4- crear el método para la actuaización de tareas recurrentes
 
 class Task {
@@ -40,20 +39,12 @@ class Task {
         const date2RR = taskParse.match(exp.es.date2);
         const date3RR = taskParse.match(exp.es.date3);
         const date4RR = taskParse.match(exp.es.date4);
-        const linksRR = prompt.match(exp.mailOrUrl);
+        const mailRR = prompt.match(exp.mail);
+        const urlRR = prompt.match(exp.url);
 
-        if (projectDef) {
-            this.project = projectDef[0];
-            this.taskRender = this.taskRender.replace(exp.project, '');
-        }
-        if (categoryDef) {
-            this.categories = categoryDef.slice(0, 2);
-            this.taskRender = this.taskRender.replace(exp.category, '');
-        }
-        if (relevanceDef) {
-            this.setRelevance(relevanceDef);
-            this.taskRender = this.taskRender.replace(/\B[*!]/g, '');
-        }
+        if (projectDef) this.project = projectDef[0];
+        if (categoryDef) this.categories = categoryDef.slice(0, 2);
+        if (relevanceDef) this.setRelevance(relevanceDef);
         if (timerDef) this.setTimer(timerDef);
         if (recurrentAbsDef) this.setRecurrentDateAbs(recurrentAbsDef);
         if (!this.dueDate && date1RR) this.setFixedDate1(date1RR);
@@ -62,10 +53,24 @@ class Task {
         if (!this.dueDate && date4RR) this.setFixedDate4(date4RR);
         if (recurrentRelDef) this.setRecurrentDateRel(recurrentRelDef);
         if (recurrentCountDef) this.setRecurrentCount(recurrentCountDef);
-        if (linksRR) {
-            this.getLinks(linksRR);
-        }
+        if (mailRR) this.getLinks(mailRR, 'mail');
+        if (urlRR) this.getLinks(urlRR, 'url');
 
+        // task para display
+        if (projectDef) {
+            this.taskRender = this.taskRender.replace(exp.project, '');
+        }
+        if (categoryDef) {
+            this.taskRender = this.taskRender.replace(exp.category, '');
+        }
+        if (this.links)
+            this.links.url.forEach((url, index) => {
+                console.log(url);
+                this.taskRender = this.taskRender.replace(
+                    url,
+                    this.links.display[index],
+                );
+            });
         this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
         this.taskRenderLength = this.taskRender.length;
         console.timeEnd('tiempo ejecución parseo:');
@@ -89,6 +94,7 @@ class Task {
         /\*|^i/i.test(regexResult.pop())
             ? (this.important = true)
             : (this.urgent = true);
+        this.taskRender = this.taskRender.replace(/\B[*!]/g, '');
     }
 
     setTimer(regexResult) {
@@ -216,8 +222,20 @@ class Task {
         }
     }
 
-    getLinks(regexResult) {
-        console.log(regexResult);
+    getLinks(regexResult, type) {
+        // this.links = { display: [], url: [] };
+        regexResult.forEach((link) => {
+            let linkTask =
+                type === 'mail'
+                    ? link
+                    : link.match(
+                          /([a-z0-9\-]+\.)?([a-z0-9\-]{1,63}\.[a-z0-9]{2,5})/i,
+                      )[0];
+            if (linkTask.length < link.length) linkTask += '(...)';
+            if (!this['links']) this['links'] = { display: [], url: [] };
+            this.links.display.push(linkTask);
+            this.links.url.push(type === 'mail' ? `mailto:${link}` : link);
+        });
     }
 
     readTask() {
