@@ -17,8 +17,9 @@ class Task {
 
     parseTask(prompt) {
         this.originalPrompt = prompt;
+        this.taskRender = prompt;
         const taskParse = prompt
-            .replace(/\s{1,}/g, ' ')
+            .replace(/\s+/g, ' ')
             .toLowerCase()
             .replace(/á|é|í|ó|ú|ü/g, (match) => {
                 if (match === 'á') return 'a';
@@ -40,9 +41,18 @@ class Task {
         const date3RR = taskParse.match(exp.es.date3);
         const date4RR = taskParse.match(exp.es.date4);
 
-        if (projectDef) this.project = projectDef[0];
-        if (categoryDef) this.categories = categoryDef.slice(0, 2);
-        if (relevanceDef) this.setRelevance(relevanceDef);
+        if (projectDef) {
+            this.project = projectDef[0];
+            this.taskRender = this.taskRender.replace(exp.project, '')
+        }
+        if (categoryDef) {
+            this.categories = categoryDef.slice(0, 2);
+            this.taskRender = this.taskRender.replace(exp.category, '')
+        }
+        if (relevanceDef) {
+            this.setRelevance(relevanceDef);
+            this.taskRender = this.taskRender.replace(/\B[*!]/g, '')
+        }
         if (timerDef) this.setTimer(timerDef);
         if (recurrentAbsDef) this.setRecurrentDateAbs(recurrentAbsDef);
         if (!this.dueDate && date1RR) this.setFixedDate1(date1RR);
@@ -51,8 +61,10 @@ class Task {
         if (!this.dueDate && date4RR) this.setFixedDate4(date4RR);
         if (recurrentRelDef) this.setRecurrentDateRel(recurrentRelDef);
         if (recurrentCountDef) this.setRecurrentCount(recurrentCountDef);
+        if (exp.mailOrUrl.test(prompt)) this.getLinks(prompt)
 
-        // this.task = '';
+        this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ')
+
     }
 
     getDayMonthIndex(dataSource, userString) {
@@ -199,11 +211,15 @@ class Task {
         }
     }
 
+    getLinks(pro) {
+        // console.table(regexResult)
+    }
+
     readTask() {
         console.log(JSON.stringify(this, null, 2));
     }
 }
 
-const as = new Task('* @ # desde mañana y durante 2 meses quiero saltar laso');
+const as = new Task('* @casa #autoban #caramelo!  desde mañana#carajo #carajo2 y! * ^info@mmejia.com https://carajo.com/casmad/asd.com durante 2@meses.com quiero saltar laso');
 
 as.readTask();
