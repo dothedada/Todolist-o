@@ -1,12 +1,6 @@
 // import './reset.css'; // reset de estilos
 // import './styles.css'; // estilos del proyecto
 import { exp, daysWeek, months } from './data.js';
-// import { timeToSeconds } from './misc.js';
-
-// TODO: obtener las fechas relativas en función de la fecha seteada
-// realizar el conteo de loops
-// desarrollar interfase
-// integrar con ls interfase
 
 class Task {
     constructor(prompt) {
@@ -34,7 +28,7 @@ class Task {
         const timerDef = taskParse.match(exp.es.timer);
         const recurrentAbsDef = taskParse.match(exp.es.loopAbsolute);
         const recurrentRelDef = taskParse.match(exp.es.loopRelative);
-        const recurrentCountDef = taskParse.match(exp.es.loopCount);
+        const recurrentCountDef = taskParse.match(exp.es.loopPeriod);
         const date1RR = taskParse.match(exp.es.date1);
         const date2RR = taskParse.match(exp.es.date2);
         const date3RR = taskParse.match(exp.es.date3);
@@ -112,7 +106,6 @@ class Task {
 
     setFixedDate1(regexResult) {
         const dueDate = new Date();
-        console.log(regexResult)
 
         const day = +regexResult[1];
         let month = regexResult[2].replace(/ de |\/| of /g, '');
@@ -186,7 +179,22 @@ class Task {
     }
 
     setRecurrentCount(regexResult) {
-        // console.log(regexResult)
+        if (/veces$|times$/i.test(regexResult)) {
+            this.recurrent = { total: regexResult.match(/[0-9]+/), current: 0 };
+            return;
+        }
+        if (!/\d+/.test(regexResult[1])) {
+            this.recurrent = {
+                month: this.getDayMonthIndex(months.es, regexResult[1]),
+            };
+        } else {
+            if (!this.dueDate) this.dueDate = new Date();
+            const endDate = new Date()
+            endDate.setMonth(
+                this.dueDate.getMonth() + +regexResult[0].match(/\d+/),
+            );
+            this.recurrent = { endDate };
+        }
     }
 
     readTask() {
@@ -194,6 +202,6 @@ class Task {
     }
 }
 
-const as = new Task('* @ # 25 de noviembre');
+const as = new Task('* @ # desde mañana y durante 2 meses quiero saltar laso');
 
 as.readTask();
