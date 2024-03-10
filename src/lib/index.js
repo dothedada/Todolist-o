@@ -2,6 +2,12 @@
 // import './styles.css'; // estilos del proyecto
 import { exp, daysWeek, months } from './data.js';
 
+// TODO:
+// 1- crear el reductor de urls
+// 2- crear el task de pantalla
+// 3- crear el contador de caracteres
+// 4- crear el método para la actuaización de tareas recurrentes
+
 class Task {
     constructor(prompt) {
         this.taskCreation = new Date();
@@ -59,6 +65,10 @@ class Task {
             : baseDate.getDate() + (userDayIndex - baseDate.getDay());
     }
 
+    getLastDayMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    }
+
     setRelevance(regexResult) {
         /\*|^i/i.test(regexResult.pop())
             ? (this.important = true)
@@ -71,10 +81,6 @@ class Task {
         this.timerPast = 0;
     }
 
-    getLastDayMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    }
-
     setRecurrentDateAbs(regexResult) {
         const nextDue = new Date();
 
@@ -82,24 +88,20 @@ class Task {
             const dayIndex = this.getDayMonthIndex(daysWeek.es, regexResult[1]);
             nextDue.setDate(this.setNextWeekDay(dayIndex, nextDue));
             this.recurrent = { day: dayIndex };
-        } else {
-            nextDue.setDate(
-                +regexResult[1] > this.getLastDayMonth(nextDue)
-                    ? this.getLastDayMonth(nextDue)
-                    : +regexResult[1],
-            );
-            nextDue.setMonth(
-                nextDue.getDate() < new Date().getDate()
-                    ? nextDue.getMonth() + 1
-                    : nextDue.getMonth(),
-            );
-            this.recurrent = {
-                date:
-                    +regexResult[1] > lastDateMonth
-                        ? lastDateMonth
-                        : +regexResult[1],
-            };
+            return;
         }
+        nextDue.setDate(
+            +regexResult[1] > this.getLastDayMonth(nextDue)
+                ? this.getLastDayMonth(nextDue)
+                : +regexResult[1],
+        );
+        nextDue.setMonth(
+            nextDue.getDate() < new Date().getDate()
+                ? nextDue.getMonth() + 1
+                : nextDue.getMonth(),
+        );
+
+        this.recurrent = { date: +regexResult[1] };
 
         this.dueDate = nextDue;
     }
@@ -175,7 +177,7 @@ class Task {
             this.dueDate.setDate(this.dueDate.getDate() + days);
         }
 
-        this.recurrent = { days };
+        this.recurrent = { daysSpan: days };
     }
 
     setRecurrentCount(regexResult) {
@@ -189,7 +191,7 @@ class Task {
             };
         } else {
             if (!this.dueDate) this.dueDate = new Date();
-            const endDate = new Date()
+            const endDate = new Date();
             endDate.setMonth(
                 this.dueDate.getMonth() + +regexResult[0].match(/\d+/),
             );
