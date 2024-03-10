@@ -7,14 +7,21 @@ import { exp, daysWeek, months } from './data.js';
 
 class Task {
     constructor(prompt) {
+        console.time('creación de tarea:');
+        
         this.taskCreation = new Date();
+        this.taskID = Math.floor(
+            Math.random() * this.taskCreation.getTime(),
+        ).toString(36);
         this.done = false;
+        
         this.parseTask(prompt);
+        this.createCleanTaks();
+
+        console.timeEnd('creación de tarea:');
     }
 
     parseTask(prompt) {
-        console.time('tiempo ejecución parseo:');
-
         this.originalPrompt = prompt;
         this.taskRender = prompt;
         const taskParse = prompt
@@ -55,25 +62,6 @@ class Task {
         if (recurrentCountDef) this.setRecurrentCount(recurrentCountDef);
         if (mailRR) this.getLinks(mailRR, 'mail');
         if (urlRR) this.getLinks(urlRR, 'url');
-
-        // task para display
-        if (projectDef) {
-            this.taskRender = this.taskRender.replace(exp.project, '');
-        }
-        if (categoryDef) {
-            this.taskRender = this.taskRender.replace(exp.category, '');
-        }
-        if (this.links)
-            this.links.url.forEach((url, index) => {
-                console.log(url);
-                this.taskRender = this.taskRender.replace(
-                    url,
-                    this.links.display[index],
-                );
-            });
-        this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
-        this.taskRenderLength = this.taskRender.length;
-        console.timeEnd('tiempo ejecución parseo:');
     }
 
     getDayMonthIndex(dataSource, userString) {
@@ -205,7 +193,6 @@ class Task {
     setRecurrentCount(regexResult) {
         if (/veces|times/i.test(regexResult)) {
             this.recurrent = { total: +regexResult[4], current: 0 };
-            console.log('carajo');
             return;
         }
         if (!/\d+/.test(regexResult[1])) {
@@ -223,7 +210,6 @@ class Task {
     }
 
     getLinks(regexResult, type) {
-        // this.links = { display: [], url: [] };
         regexResult.forEach((link) => {
             let linkTask =
                 type === 'mail'
@@ -236,6 +222,24 @@ class Task {
             this.links.display.push(linkTask);
             this.links.url.push(type === 'mail' ? `mailto:${link}` : link);
         });
+    }
+
+    createCleanTaks() {
+        if (this.project) {
+            this.taskRender = this.taskRender.replace(exp.project, '');
+        }
+        if (this.categories) {
+            this.taskRender = this.taskRender.replace(exp.category, '');
+        }
+        if (this.links)
+            this.links.url.forEach((url, index) => {
+                this.taskRender = this.taskRender.replace(
+                    url,
+                    this.links.display[index],
+                );
+            });
+        this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
+        this.taskRenderLength = this.taskRender.length;
     }
 
     readTask() {
