@@ -4,8 +4,6 @@ import { exp, daysWeek, months } from './data.js';
 
 // TODO:
 // 1- crear el reductor de urls
-// 2- crear el task de pantalla
-// 3- crear el contador de caracteres
 // 4- crear el método para la actuaización de tareas recurrentes
 
 class Task {
@@ -16,6 +14,8 @@ class Task {
     }
 
     parseTask(prompt) {
+        console.time('tiempo ejecución parseo:');
+
         this.originalPrompt = prompt;
         this.taskRender = prompt;
         const taskParse = prompt
@@ -40,18 +40,19 @@ class Task {
         const date2RR = taskParse.match(exp.es.date2);
         const date3RR = taskParse.match(exp.es.date3);
         const date4RR = taskParse.match(exp.es.date4);
+        const linksRR = prompt.match(exp.mailOrUrl);
 
         if (projectDef) {
             this.project = projectDef[0];
-            this.taskRender = this.taskRender.replace(exp.project, '')
+            this.taskRender = this.taskRender.replace(exp.project, '');
         }
         if (categoryDef) {
             this.categories = categoryDef.slice(0, 2);
-            this.taskRender = this.taskRender.replace(exp.category, '')
+            this.taskRender = this.taskRender.replace(exp.category, '');
         }
         if (relevanceDef) {
             this.setRelevance(relevanceDef);
-            this.taskRender = this.taskRender.replace(/\B[*!]/g, '')
+            this.taskRender = this.taskRender.replace(/\B[*!]/g, '');
         }
         if (timerDef) this.setTimer(timerDef);
         if (recurrentAbsDef) this.setRecurrentDateAbs(recurrentAbsDef);
@@ -61,10 +62,13 @@ class Task {
         if (!this.dueDate && date4RR) this.setFixedDate4(date4RR);
         if (recurrentRelDef) this.setRecurrentDateRel(recurrentRelDef);
         if (recurrentCountDef) this.setRecurrentCount(recurrentCountDef);
-        if (exp.mailOrUrl.test(prompt)) this.getLinks(prompt)
+        if (linksRR) {
+            this.getLinks(linksRR);
+        }
 
-        this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ')
-
+        this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
+        this.taskRenderLength = this.taskRender.length;
+        console.timeEnd('tiempo ejecución parseo:');
     }
 
     getDayMonthIndex(dataSource, userString) {
@@ -193,8 +197,9 @@ class Task {
     }
 
     setRecurrentCount(regexResult) {
-        if (/veces$|times$/i.test(regexResult)) {
-            this.recurrent = { total: regexResult.match(/[0-9]+/), current: 0 };
+        if (/veces|times/i.test(regexResult)) {
+            this.recurrent = { total: +regexResult[4], current: 0 };
+            console.log('carajo');
             return;
         }
         if (!/\d+/.test(regexResult[1])) {
@@ -211,8 +216,8 @@ class Task {
         }
     }
 
-    getLinks(pro) {
-        // console.table(regexResult)
+    getLinks(regexResult) {
+        console.log(regexResult);
     }
 
     readTask() {
@@ -220,6 +225,8 @@ class Task {
     }
 }
 
-const as = new Task('* @casa #autoban #caramelo!  desde mañana#carajo #carajo2 y! * ^info@mmejia.com https://carajo.com/casmad/asd.com durante 2@meses.com quiero saltar laso');
+const as = new Task(
+    '! buscar la imagen en https://www.carajillo.com/carenalga/re_donDa.jpg y enviarla a info@mmejia.com @casa veces #compras #navidad durante noviembre',
+);
 
 as.readTask();
