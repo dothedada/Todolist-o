@@ -27,23 +27,19 @@ class Task {
                 if (match === 'ó') return 'o';
                 if (match === 'ú' || match === 'ü') return 'u';
             });
-        // this.task = '';
 
-        // Task definitions = RegexResults.
-        // Project an categoty are case sensitive
         const projectDef = prompt.match(exp.project);
         const categoryDef = prompt.match(exp.category);
         const relevanceDef = taskParse.match(exp.es.relevance);
         const timerDef = taskParse.match(exp.es.timer);
         const recurrentAbsDef = taskParse.match(exp.es.loopAbsolute);
         const recurrentRelDef = taskParse.match(exp.es.loopRelative);
-        const recurrentLoopCountRR = taskParse.match(exp.es.loopCount);
+        const recurrentCountDef = taskParse.match(exp.es.loopCount);
         const date1RR = taskParse.match(exp.es.date1);
         const date2RR = taskParse.match(exp.es.date2);
         const date3RR = taskParse.match(exp.es.date3);
         const date4RR = taskParse.match(exp.es.date4);
 
-        // Set task object properties
         if (projectDef) this.project = projectDef[0];
         if (categoryDef) this.categories = categoryDef.slice(0, 2);
         if (relevanceDef) this.setRelevance(relevanceDef);
@@ -54,6 +50,9 @@ class Task {
         if (!this.dueDate && date3RR) this.setFixedDate3(date3RR);
         if (!this.dueDate && date4RR) this.setFixedDate4(date4RR);
         if (recurrentRelDef) this.setRecurrentDateRel(recurrentRelDef);
+        if (recurrentCountDef) this.setRecurrentCount(recurrentCountDef);
+
+        // this.task = '';
     }
 
     getDayMonthIndex(dataSource, userString) {
@@ -78,12 +77,8 @@ class Task {
         this.timerPast = 0;
     }
 
-    getLastDayCurrentMonth() {
-        return new Date(
-            new Date().getFullYear(),
-            new Date().getMonth() + 1,
-            0,
-        ).getDate();
+    getLastDayMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
     }
 
     setRecurrentDateAbs(regexResult) {
@@ -95,8 +90,8 @@ class Task {
             this.recurrent = { day: dayIndex };
         } else {
             nextDue.setDate(
-                +regexResult[1] > this.getLastDayCurrentMonth()
-                    ? this.getLastDayCurrentMonth()
+                +regexResult[1] > this.getLastDayMonth(nextDue)
+                    ? this.getLastDayMonth(nextDue)
                     : +regexResult[1],
             );
             nextDue.setMonth(
@@ -117,6 +112,7 @@ class Task {
 
     setFixedDate1(regexResult) {
         const dueDate = new Date();
+        console.log(regexResult)
 
         const day = +regexResult[1];
         let month = regexResult[2].replace(/ de |\/| of /g, '');
@@ -124,10 +120,16 @@ class Task {
         month = /\d/.test(month)
             ? +month - 1
             : this.getDayMonthIndex(months.es, month);
-        dueDate.setDate(day);
+
         dueDate.setMonth(month);
-        if (new Date() > dueDate)
+        if (new Date() > dueDate) {
             dueDate.setFullYear(dueDate.getFullYear() + 1);
+        }
+        dueDate.setDate(
+            day < this.getLastDayMonth(dueDate)
+                ? day
+                : this.getLastDayMonth(dueDate),
+        );
 
         this.dueDate = dueDate;
     }
@@ -179,10 +181,12 @@ class Task {
             this.dueDate = new Date();
             this.dueDate.setDate(this.dueDate.getDate() + days);
         }
-        console.log(regexResult, days);
-        console.log(this.getLastDayCurrentMonth());
 
         this.recurrent = { days };
+    }
+
+    setRecurrentCount(regexResult) {
+        // console.log(regexResult)
     }
 
     readTask() {
@@ -190,6 +194,6 @@ class Task {
     }
 }
 
-const as = new Task('* @ # todos en de cada 8 dias hora carajo');
+const as = new Task('* @ # 25 de noviembre');
 
 as.readTask();
