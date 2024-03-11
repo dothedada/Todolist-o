@@ -3,22 +3,39 @@
 import { exp, daysWeek, months } from './data.js';
 
 // TODO:
-// 4- crear el método para la actuaización de tareas recurrentes
+// 1- crear método para actualizar el due date en tareas recurrentes
+// Nuevo módulo para la administración de tareas
+// 2- Crear la biblioteca de tareas
+// 3- creación
+// 4- eliminar
+// 5- actualizar
+// 6- filtrar
+// 7- ordenar
 
 class Task {
     constructor(prompt) {
-        console.time('creación de tarea:');
+        console.time('Tiempo creación de tarea:')
         
-        this.taskCreation = new Date();
-        this.taskID = Math.floor(
-            Math.random() * this.taskCreation.getTime(),
-        ).toString(36);
-        this.done = false;
-        
+        Object.defineProperties(this, {
+            done: {
+                value: false,
+                enumerable: false,
+                configurable: true,
+                writable: true,
+            },
+            taskCreation: {
+                value: new Date(),
+            },
+            taskID: {
+                value: Math.floor(
+                    Math.random() * new Date().getTime(),
+                ).toString(26),
+            },
+        });
         this.parseTask(prompt);
         this.createCleanTaks();
 
-        console.timeEnd('creación de tarea:');
+        console.timeEnd('Tiempo creación de tarea:')
     }
 
     parseTask(prompt) {
@@ -242,13 +259,22 @@ class Task {
         this.taskRenderLength = this.taskRender.length;
     }
 
+    updateTask(prompt) {
+        for (const key in this) {
+            Reflect.deleteProperty(this, key)
+        }
+        this.parseTask(prompt);
+        this.createCleanTaks();
+    }
+
     readTask() {
         console.log(JSON.stringify(this, null, 2));
     }
 }
 
+// test
 const as = new Task(
     '! buscar la imagen en https://www.carajillo.com/carenalga/re_donDa.jpg y enviarla a info@mmejia.com @casa veces #compras #navidad durante noviembre',
 );
-
 as.readTask();
+console.log(as.taskID, as.done, as.taskCreation)
