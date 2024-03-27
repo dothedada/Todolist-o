@@ -11,11 +11,22 @@ import { exp, daysWeek, months } from './data.js';
 // 5- actualizar
 // 6- filtrar
 // 7- ordenar
+//
+const getDayMonthIndex = (dataSource, userString) =>
+    dataSource.findIndex((element) => element === userString);
+
+const setNextWeekDay = (userDayIndex, baseDate) =>
+    userDayIndex < baseDate.getDay()
+        ? baseDate.getDate() + userDayIndex + (7 - baseDate.getDay())
+        : baseDate.getDate() + (userDayIndex - baseDate.getDay());
+
+const getLastDayMonth = (date) =>
+    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 
 class Task {
     constructor(prompt) {
-        console.time('Tiempo creación de tarea:')
-        
+        // console.time('Tiempo creación de tarea:');
+
         Object.defineProperties(this, {
             done: {
                 value: false,
@@ -35,7 +46,7 @@ class Task {
         this.parseTask(prompt);
         this.createCleanTaks();
 
-        console.timeEnd('Tiempo creación de tarea:')
+        // console.timeEnd('Tiempo creación de tarea:');
     }
 
     parseTask(prompt) {
@@ -45,11 +56,13 @@ class Task {
             .replace(/\s+/g, ' ')
             .toLowerCase()
             .replace(/á|é|í|ó|ú|ü/g, (match) => {
-                if (match === 'á') return 'a';
-                if (match === 'é') return 'e';
-                if (match === 'í') return 'i';
-                if (match === 'ó') return 'o';
-                if (match === 'ú' || match === 'ü') return 'u';
+                let noAccentChar;
+                if (match === 'á') noAccentChar = 'a';
+                if (match === 'é') noAccentChar = 'e';
+                if (match === 'í') noAccentChar = 'i';
+                if (match === 'ó') noAccentChar = 'o';
+                if (match === 'ú' || match === 'ü') noAccentChar = 'u';
+                return noAccentChar;
             });
 
         const projectDef = prompt.match(exp.project);
@@ -66,7 +79,7 @@ class Task {
         const mailRR = prompt.match(exp.mail);
         const urlRR = prompt.match(exp.url);
 
-        if (projectDef) this.project = projectDef[0];
+        if (projectDef) this.project = projectDef.shift();
         if (categoryDef) this.categories = categoryDef.slice(0, 2);
         if (relevanceDef) this.setRelevance(relevanceDef);
         if (timerDef) this.setTimer(timerDef);
@@ -81,24 +94,12 @@ class Task {
         if (urlRR) this.getLinks(urlRR, 'url');
     }
 
-    getDayMonthIndex(dataSource, userString) {
-        return dataSource.findIndex((element) => element === userString);
-    }
-
-    setNextWeekDay(userDayIndex, baseDate) {
-        return userDayIndex < baseDate.getDay()
-            ? baseDate.getDate() + userDayIndex + (7 - baseDate.getDay())
-            : baseDate.getDate() + (userDayIndex - baseDate.getDay());
-    }
-
-    getLastDayMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    }
-
     setRelevance(regexResult) {
-        /\*|^i/i.test(regexResult.pop())
-            ? (this.important = true)
-            : (this.urgent = true);
+        if (/\*|^i/i.test(regexResult.pop())) {
+            this.important = true;
+        } else {
+            this.urgent = true;
+        }
         this.taskRender = this.taskRender.replace(/\B[*!]/g, '');
     }
 
@@ -112,14 +113,14 @@ class Task {
         const nextDue = new Date();
 
         if (!/\d/.test(regexResult[0])) {
-            const dayIndex = this.getDayMonthIndex(daysWeek.es, regexResult[1]);
-            nextDue.setDate(this.setNextWeekDay(dayIndex, nextDue));
+            const dayIndex = getDayMonthIndex(daysWeek.es, regexResult[1]);
+            nextDue.setDate(setNextWeekDay(dayIndex, nextDue));
             this.recurrent = { day: dayIndex };
             return;
         }
         nextDue.setDate(
-            +regexResult[1] > this.getLastDayMonth(nextDue)
-                ? this.getLastDayMonth(nextDue)
+            +regexResult[1] > getLastDayMonth(nextDue)
+                ? getLastDayMonth(nextDue)
                 : +regexResult[1],
         );
         nextDue.setMonth(
@@ -141,16 +142,14 @@ class Task {
 
         month = /\d/.test(month)
             ? +month - 1
-            : this.getDayMonthIndex(months.es, month);
+            : getDayMonthIndex(months.es, month);
 
         dueDate.setMonth(month);
         if (new Date() > dueDate) {
             dueDate.setFullYear(dueDate.getFullYear() + 1);
         }
         dueDate.setDate(
-            day < this.getLastDayMonth(dueDate)
-                ? day
-                : this.getLastDayMonth(dueDate),
+            day < getLastDayMonth(dueDate) ? day : getLastDayMonth(dueDate),
         );
 
         this.dueDate = dueDate;
@@ -166,8 +165,8 @@ class Task {
         if (day[5][0] === 'd') daysBetween -= 1;
         if (/ma.ana|tomorr/i.test(day[2])) daysBetween += +1;
         if (exp.es.week.test(day[0])) {
-            const dayIndex = this.getDayMonthIndex(daysWeek.es, day[3]);
-            dueDate.setDate(this.setNextWeekDay(dayIndex, dueDate));
+            const dayIndex = getDayMonthIndex(daysWeek.es, day[3]);
+            dueDate.setDate(setNextWeekDay(dayIndex, dueDate));
         }
         dueDate.setDate(dueDate.getDate() + daysBetween);
 
@@ -177,8 +176,8 @@ class Task {
     setFixedDate3(regexResult) {
         const dueDate = new Date();
         const day = regexResult;
-        const dayIndex = this.getDayMonthIndex(daysWeek.es, day[2]);
-        dueDate.setDate(this.setNextWeekDay(dayIndex, dueDate));
+        const dayIndex = getDayMonthIndex(daysWeek.es, day[2]);
+        dueDate.setDate(setNextWeekDay(dayIndex, dueDate));
         if (/prox|next/i.test(day[1])) dueDate.setDate(dueDate.getDate() + 7);
 
         this.dueDate = dueDate;
@@ -214,7 +213,7 @@ class Task {
         }
         if (!/\d+/.test(regexResult[1])) {
             this.recurrent = {
-                month: this.getDayMonthIndex(months.es, regexResult[1]),
+                month: getDayMonthIndex(months.es, regexResult[1]),
             };
         } else {
             if (!this.dueDate) this.dueDate = new Date();
@@ -232,10 +231,10 @@ class Task {
                 type === 'mail'
                     ? link
                     : link.match(
-                          /([a-z0-9\-]+\.)?([a-z0-9\-]{1,63}\.[a-z0-9]{2,5})/i,
+                          /([a-z0-9-]+\.)?([a-z0-9-]{1,63}\.[a-z0-9]{2,5})/i,
                       )[0];
             if (linkTask.length < link.length) linkTask += '(...)';
-            if (!this['links']) this['links'] = { display: [], url: [] };
+            if (!this.links) this.links = { display: [], url: [] };
             this.links.display.push(linkTask);
             this.links.url.push(type === 'mail' ? `mailto:${link}` : link);
         });
@@ -260,15 +259,16 @@ class Task {
     }
 
     updateTask(prompt) {
-        for (const key in this) {
+        Object.keys(this).forEach(key => {
             Reflect.deleteProperty(this, key)
-        }
+        })
         this.parseTask(prompt);
         this.createCleanTaks();
     }
 
     readTask() {
         console.log(JSON.stringify(this, null, 2));
+        // console.log(Object.keys(this))
     }
 }
 
@@ -277,4 +277,6 @@ const as = new Task(
     '! buscar la imagen en https://www.carajillo.com/carenalga/re_donDa.jpg y enviarla a info@mmejia.com @casa veces #compras #navidad durante noviembre',
 );
 as.readTask();
-console.log(as.taskID, as.done, as.taskCreation)
+
+as.updateTask('* ahora vamos a otra @era')
+as.readTask();
