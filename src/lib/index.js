@@ -27,9 +27,9 @@ class Task {
                 value: new Date(),
             },
             taskID: {
-                value: Math.floor(
+                value: `${new Date().getTime().toString(26)}_${Math.floor(
                     Math.random() * new Date().getTime(),
-                ).toString(26),
+                ).toString(26)}`,
             },
         });
         this.parseTask(prompt);
