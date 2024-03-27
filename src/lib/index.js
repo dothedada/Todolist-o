@@ -1,7 +1,11 @@
 // import './reset.css'; // reset de estilos
 // import './styles.css'; // estilos del proyecto
 import { exp, daysWeek, months } from './data.js';
-
+import {
+    getDayMonthIndex,
+    getLastDayMonth,
+    setNextWeekDay,
+} from './dateCalculations.js';
 // TODO:
 // 1- crear método para actualizar el due date en tareas recurrentes
 // Nuevo módulo para la administración de tareas
@@ -12,16 +16,6 @@ import { exp, daysWeek, months } from './data.js';
 // 6- filtrar
 // 7- ordenar
 //
-const getDayMonthIndex = (dataSource, userString) =>
-    dataSource.findIndex((element) => element === userString);
-
-const setNextWeekDay = (userDayIndex, baseDate) =>
-    userDayIndex < baseDate.getDay()
-        ? baseDate.getDate() + userDayIndex + (7 - baseDate.getDay())
-        : baseDate.getDate() + (userDayIndex - baseDate.getDay());
-
-const getLastDayMonth = (date) =>
-    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 
 class Task {
     constructor(prompt) {
@@ -259,9 +253,9 @@ class Task {
     }
 
     updateTask(prompt) {
-        Object.keys(this).forEach(key => {
-            Reflect.deleteProperty(this, key)
-        })
+        Object.keys(this).forEach((key) => {
+            Reflect.deleteProperty(this, key);
+        });
         this.parseTask(prompt);
         this.createCleanTaks();
     }
@@ -278,5 +272,5 @@ const as = new Task(
 );
 as.readTask();
 
-as.updateTask('* ahora vamos a otra @era')
+as.updateTask('* ahora vamos a otra @era');
 as.readTask();
