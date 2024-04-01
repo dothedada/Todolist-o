@@ -65,7 +65,7 @@ class Task {
         const timerDef = taskParse.match(exp.es.timer);
         const recurrentAbsDef = taskParse.match(exp.es.loopAbsolute);
         const recurrentRelDef = taskParse.match(exp.es.loopRelative);
-        const recurrentCountDef = taskParse.match(exp.es.loopPeriod);
+        const recurrentLapse = taskParse.match(exp.es.loopPeriod);
         const date1RR = taskParse.match(exp.es.date1);
         const date2RR = taskParse.match(exp.es.date2);
         const date3RR = taskParse.match(exp.es.date3);
@@ -83,7 +83,7 @@ class Task {
         if (!this.dueDate && date3RR) this.setFixedDate3(date3RR);
         if (!this.dueDate && date4RR) this.setFixedDate4(date4RR);
         if (recurrentRelDef) this.setRecurrentDateRel(recurrentRelDef);
-        if (recurrentCountDef) this.setRecurrentCount(recurrentCountDef);
+        if (recurrentLapse) this.setRecurrentLapse(recurrentLapse);
         if (mailRR) this.getLinks(mailRR, 'mail');
         if (urlRR) this.getLinks(urlRR, 'url');
     }
@@ -103,10 +103,9 @@ class Task {
         this.timerPast = 0;
     }
 
-    setRecurrentDateAbs(regexResult = 0) {
-        if (regexResult !== 0) this.recurrent = { parameter: regexResult };
+    setRecurrentDateAbs(regexResult) {
+        if (regexResult) this.recurrent = { absolute: true, parameter: regexResult };
         const recurrentDate = this.recurrent.parameter;
-
         const nextDue = new Date();
 
         if (!/\d/.test(recurrentDate[0])) {
@@ -192,8 +191,8 @@ class Task {
         this.dueDate = dueDate;
     }
 
-    setRecurrentDateRel(regexResult) {
-        if (regexResult !== 0) this.recurrent = { parameter: regexResult };
+    setRecurrentDateRel(regexResult = 0) {
+        if (regexResult !== 0) this.recurrent = { relative: true, parameter: regexResult };
         const recurrentDate = this.recurrent.parameter;
 
         let days = +recurrentDate[1];
@@ -208,22 +207,26 @@ class Task {
         this.recurrent.daysSpan= days;
     }
 
-    setRecurrentCount(regexResult) {
-        if (/veces|times/i.test(regexResult)) {
-            this.recurrent = { total: +regexResult[4], current: 0 };
+    setRecurrentLapse(regexResult) {
+        if (!this.recurrent) this.recurrent = {}
+        this.recurrent.lapse = true
+        const recurrentDate = regexResult;
+
+        if (/veces|times/i.test(recurrentDate)) {
+            this.recurrent.total = +recurrentDate[4]
+            this.recurrent.current = !regexResult ? this.recurrent.current += 1 : 0;
             return;
         }
-        if (!/\d+/.test(regexResult[1])) {
-            this.recurrent = {
-                month: getDayMonthIndex(months.es, regexResult[1]),
-            };
+
+        if (!/\d+/.test(recurrentDate[1])) {
+            this.recurrent.month = getDayMonthIndex(months.es, recurrentDate[1])
         } else {
             if (!this.dueDate) this.dueDate = new Date();
             const endDate = new Date();
             endDate.setMonth(
-                this.dueDate.getMonth() + +regexResult[0].match(/\d+/),
+                this.dueDate.getMonth() + +recurrentDate[0].match(/\d+/),
             );
-            this.recurrent = { endDate };
+            this.recurrent.endDate = endDate;
         }
     }
 
@@ -247,21 +250,25 @@ class Task {
         if (this.project) {
             this.taskRender = this.taskRender.replace(exp.project, '');
         }
+        
         if (this.categories) {
             this.taskRender = this.taskRender.replace(exp.category, '');
         }
-        if (this.links)
+        
+        this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
+        this.taskRenderLength = this.taskRender.length;
+
+        if (this.links) {
             this.links.url.forEach((url, index) => {
                 this.taskRender = this.taskRender.replace(
                     url,
                     this.links.display[index],
                 );
             });
-        this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
-        this.taskRenderLength = this.taskRender.length;
-
-        // NOTE: Inyecta los enlaces en el html
-        if (this.links)
+            this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
+            this.taskRenderLength = this.taskRender.length;
+        
+            // NOTE: Inyecta los enlaces en el html
             this.links.display.forEach((url, index) => {
                 this.taskRender = this.taskRender.replace(url, (match) =>
                     exp.mail.test(match)
@@ -269,6 +276,7 @@ class Task {
                         : `<a href="${url}" target="_blank">${this.links.display[index]}</a>`,
                 );
             });
+        }
     }
 
     updateTask(prompt) {
@@ -283,13 +291,34 @@ class Task {
         console.log(JSON.stringify(this, null, 2));
         // console.log(Object.keys(this))
     }
+
+    markDone() {
+        if (this.recurrent.current !== undefined) this.recurrent.current += 1
+        if (!this.recurrent
+            // || this.recurrent.endDate === new Date() 
+            || this.recurrent.current >= this.recurrent.total) {
+            this.done = true
+            console.log(this.done)
+            return
+        }
+        if (this.recurrent.absolute) this.setRecurrentDateAbs()
+        if (this.recurrent.relative) this.setRecurrentDateRel()
+    }
 }
 
 // test
-const as = new Task(
-    '! buscar la imagen en https://www.carajillo.com/carenalga/re_donDa.jpg y enviarla a info@mmejia.com @casa veces #compras #navidad durante marzo todos los domingos de febrero',
-);
-as.readTask();
+const s = new Task('todos 2 veces carachimba ingo@nnnn.com www.carajillo.com/blablabla');
+// const as = new Task('todos los lunes durante abril carajillo');
+// const sas = new Task('todos los lunes durante 2 meses carajillo');
+// const mas = new Task('cada 8 días carebola');
+// const masa = new Task('durante 2 meses ǹñnnnnn');
 
-as.updateTask('* ahora vamos a otra @era');
-as.readTask();
+s.readTask();
+s.markDone()
+s.readTask();
+s.markDone()
+s.readTask();
+// as.readTask();
+// sas.readTask();
+// mas.readTask();
+// masa.readTask();
