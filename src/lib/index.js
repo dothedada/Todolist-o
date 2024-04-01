@@ -218,16 +218,19 @@ class Task {
             return;
         }
 
+        const endDate = new Date();
         if (!/\d+/.test(recurrentDate[1])) {
-            this.recurrent.month = getDayMonthIndex(months.es, recurrentDate[1])
+            const month = getDayMonthIndex(months.es, recurrentDate[1])
+            endDate.setMonth(month)
+            endDate.setFullYear(endDate <= new Date() ? endDate.getFullYear() + 1 : endDate.getFullYear())
+            endDate.setDate(getLastDayMonth(endDate))
         } else {
             if (!this.dueDate) this.dueDate = new Date();
-            const endDate = new Date();
             endDate.setMonth(
                 this.dueDate.getMonth() + +recurrentDate[0].match(/\d+/),
             );
-            this.recurrent.endDate = endDate;
         }
+        this.recurrent.endDate = endDate;
     }
 
     getLinks(regexResult, type) {
@@ -295,11 +298,10 @@ class Task {
     markDone() {
         if (this.recurrent.current !== undefined) this.recurrent.current += 1
         if (!this.recurrent
-            // || this.recurrent.endDate === new Date() 
+            || new Date() >= this.recurrent.endDate 
             || this.recurrent.current >= this.recurrent.total) {
             this.done = true
-            console.log(this.done)
-            return
+                return
         }
         if (this.recurrent.absolute) this.setRecurrentDateAbs()
         if (this.recurrent.relative) this.setRecurrentDateRel()
@@ -307,7 +309,7 @@ class Task {
 }
 
 // test
-const s = new Task('todos 2 veces carachimba ingo@nnnn.com www.carajillo.com/blablabla');
+const s = new Task('durante 2 meses carachimba ingo@nnnn.com www.carajillo.com/blablabla');
 // const as = new Task('todos los lunes durante abril carajillo');
 // const sas = new Task('todos los lunes durante 2 meses carajillo');
 // const mas = new Task('cada 8 días carebola');
