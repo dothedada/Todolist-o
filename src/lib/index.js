@@ -220,15 +220,16 @@ class Task {
     }
 
     getLinks(regexResult, type) {
+        if (!this.links) this.links = { display: [], url: [] };
+
         regexResult.forEach((link) => {
-            let linkTask =
-                type === 'mail'
-                    ? link
-                    : link.match(
-                          /([a-z0-9-]+\.)?([a-z0-9-]{1,63}\.[a-z0-9]{2,5})/i,
-                      )[0];
+            let linkTask = /^m/.test(type)
+                ? link
+                : link.match(
+                      /([a-z0-9-]+\.)?([a-z0-9-]{1,63}\.[a-z0-9]{2,5})/i,
+                  )[0];
             if (linkTask.length < link.length) linkTask += '(...)';
-            if (!this.links) this.links = { display: [], url: [] };
+
             this.links.display.push(linkTask);
             this.links.url.push(type === 'mail' ? `mailto:${link}` : link);
         });
@@ -250,6 +251,14 @@ class Task {
             });
         this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
         this.taskRenderLength = this.taskRender.length;
+        if (this.links)
+            this.links.display.forEach((url, index) => {
+                this.taskRender = this.taskRender.replace(url, (match) =>
+                    exp.mail.test(match)
+                        ? `<a href="${url}">${this.links.display[index]}</a>`
+                        : `<a href="${url}" target="_blank">${this.links.display[index]}</a>`,
+                );
+            });
     }
 
     updateTask(prompt) {
