@@ -103,27 +103,32 @@ class Task {
         this.timerPast = 0;
     }
 
-    setRecurrentDateAbs(regexResult) {
+    setRecurrentDateAbs(regexResult = 0) {
+        if (regexResult !== 0) this.recurrent = { parameter: regexResult };
+        const recurrentDate = this.recurrent.parameter;
+
         const nextDue = new Date();
 
-        if (!/\d/.test(regexResult[0])) {
-            const dayIndex = getDayMonthIndex(daysWeek.es, regexResult[1]);
+        if (!/\d/.test(recurrentDate[0])) {
+            const dayIndex = getDayMonthIndex(daysWeek.es, recurrentDate[1]);
             nextDue.setDate(setNextWeekDay(dayIndex, nextDue));
-            this.recurrent = { day: dayIndex };
-            return;
-        }
-        nextDue.setDate(
-            +regexResult[1] > getLastDayMonth(nextDue)
-                ? getLastDayMonth(nextDue)
-                : +regexResult[1],
-        );
-        nextDue.setMonth(
-            nextDue.getDate() < new Date().getDate()
-                ? nextDue.getMonth() + 1
-                : nextDue.getMonth(),
-        );
 
-        this.recurrent = { date: +regexResult[1] };
+            this.recurrent.day = dayIndex;
+
+        } else {
+            nextDue.setDate(
+                +recurrentDate[1] > getLastDayMonth(nextDue)
+                    ? getLastDayMonth(nextDue)
+                    : +recurrentDate[1],
+            );
+            nextDue.setMonth(
+                nextDue.getDate() < new Date().getDate()
+                    ? nextDue.getMonth() + 1
+                    : nextDue.getMonth(),
+            );
+
+            this.recurrent.date = +recurrentDate[1];
+        }
 
         this.dueDate = nextDue;
     }
@@ -188,16 +193,19 @@ class Task {
     }
 
     setRecurrentDateRel(regexResult) {
-        let days = +regexResult[1];
-        if (/^week|^semana/.test(regexResult[2])) days *= 7;
-        if (/^month|^mes/.test(regexResult[2])) days *= 30;
-        if (/^day|^dia/.test(regexResult[2])) days -= 1;
+        if (regexResult !== 0) this.recurrent = { parameter: regexResult };
+        const recurrentDate = this.recurrent.parameter;
+
+        let days = +recurrentDate[1];
+        if (/^week|^semana/.test(recurrentDate[2])) days *= 7;
+        if (/^month|^mes/.test(recurrentDate[2])) days *= 30;
+        if (/^day|^dia/.test(recurrentDate[2])) days -= 1;
         if (!this.dueDate) {
             this.dueDate = new Date();
             this.dueDate.setDate(this.dueDate.getDate() + days);
         }
 
-        this.recurrent = { daysSpan: days };
+        this.recurrent.daysSpan= days;
     }
 
     setRecurrentCount(regexResult) {
@@ -251,6 +259,8 @@ class Task {
             });
         this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
         this.taskRenderLength = this.taskRender.length;
+
+        // NOTE: Inyecta los enlaces en el html
         if (this.links)
             this.links.display.forEach((url, index) => {
                 this.taskRender = this.taskRender.replace(url, (match) =>
@@ -277,7 +287,7 @@ class Task {
 
 // test
 const as = new Task(
-    '! buscar la imagen en https://www.carajillo.com/carenalga/re_donDa.jpg y enviarla a info@mmejia.com @casa veces #compras #navidad durante noviembre',
+    '! buscar la imagen en https://www.carajillo.com/carenalga/re_donDa.jpg y enviarla a info@mmejia.com @casa veces #compras #navidad durante marzo todos los domingos de febrero',
 );
 as.readTask();
 
