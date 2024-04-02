@@ -6,6 +6,7 @@ import Task from './task.js';
 // 5- actualizar
 // 6- filtrar
 // 7- ordenar
+// WARN: revisar el day cuando se establece un periodo de recurrecia futuro
 
-const as = new Task('@hola carenalga, esta es una www.prueba.com')
+const as = new Task('@hola carenalga, 12/3 esta es una www.prueba.com')
 as.readTask()

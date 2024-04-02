@@ -1,17 +1,15 @@
-// import './reset.css'; // reset de estilos
-// import './styles.css'; // estilos del proyecto
 import { exp, daysWeek, months } from './data.js';
 import {
     getDayMonthIndex,
     getLastDayMonth,
     setNextWeekDay,
-} from './dateCalculations.js';
-// WARN: revisar el day cuando se establece un periodo de recurrecia futuro
+} from './dateFunctions.js';
+// WARN: 
+// 1) revisar el day cuando se establece un periodo de recurrecia futuro
+// 2) limpiar los regex date*
 
 export default class Task {
     constructor(prompt) {
-        // console.time('Tiempo creación de tarea:');
-
         Object.defineProperties(this, {
             done: {
                 value: false,
@@ -28,11 +26,10 @@ export default class Task {
                 ).toString(26)}`,
             },
         });
+
         this.parseTask(prompt);
         this.createCleanTaks();
         this.injectTaskElements();
-
-        // console.timeEnd('Tiempo creación de tarea:');
     }
 
     parseTask(prompt) {
@@ -106,13 +103,13 @@ export default class Task {
             ? +month - 1
             : getDayMonthIndex(months.es, month);
 
-        dueDate.setMonth(month);
-        if (new Date() > dueDate) {
-            dueDate.setFullYear(dueDate.getFullYear() + 1);
-        }
         dueDate.setDate(
             day < getLastDayMonth(dueDate) ? day : getLastDayMonth(dueDate),
         );
+        dueDate.setMonth(month);
+        if (dueDate < new Date()) {
+            dueDate.setFullYear(dueDate.getFullYear() + 1);
+        }
 
         this.dueDate = dueDate;
     }
@@ -321,7 +318,7 @@ export default class Task {
             this.done = true;
         }
 
-        if (this.timer) this.timerPast = 0
+        if (this.timer) this.timerPast = 0;
         if (this.recurrent.count) this.recurrent.current += 1;
         if (this.recurrent.class === 'absolute') this.setRecurrentDateAbs();
         if (this.recurrent.class === 'relative') this.setRecurrentDateRel();

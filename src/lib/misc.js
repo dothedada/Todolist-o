@@ -1,8 +1,3 @@
-const timeToSeconds = (time, unit) => {
-    const seconds = /h/i.test(unit) ? 3600 : 60;
-    return time * seconds;
-};
-
 const debounce = (callback, wait = 100) => {
     let timer;
     return () => {
@@ -27,4 +22,4 @@ const taskEvent = () => {
     return { pub, sub };
 };
 
-export { timeToSeconds, debounce, taskEvent };
+export { debounce, taskEvent };
