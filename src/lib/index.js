@@ -221,8 +221,8 @@ class Task {
     }
 
     setRecurrentLapse(regexResult) {
-        console.log('blablabla')
-        if (!this.recurrent) this.recurrent = { class: 'lapse' };
+        if (!this.recurrent) this.recurrent = {};
+        this.recurrent.lapse = true;
 
         if (/veces|times/i.test(regexResult)) {
             this.recurrent.total = +regexResult[3];
@@ -230,23 +230,42 @@ class Task {
             return;
         }
 
-        const endDate = new Date();
+        let startDate;
+        let endDate;
 
         if (!/\d+/.test(regexResult[1])) {
             const month = getDayMonthIndex(months.es, regexResult[1]);
-            endDate.setMonth(month);
-            endDate.setFullYear(
-                endDate <= new Date()
-                    ? endDate.getFullYear() + 1
-                    : endDate.getFullYear(),
+            const baseDate = new Date();
+
+            baseDate.setMonth(month);
+            baseDate.setFullYear(
+                baseDate < new Date()
+                    ? baseDate.getFullYear() + 1
+                    : baseDate.getFullYear(),
             );
-            endDate.setDate(getLastDayMonth(endDate));
+
+            startDate = new Date(
+                baseDate.getFullYear(),
+                baseDate.getMonth(),
+                1,
+            );
+            endDate = new Date(
+                baseDate.getFullYear(),
+                baseDate.getMonth(),
+                getLastDayMonth(baseDate),
+            );
+
+            if (!this.dueDate) this.dueDate = new Date()
+            this.dueDate.setMonth(baseDate.getMonth());
+            this.dueDate.setFullYear(baseDate.getFullYear());
         } else {
             if (!this.dueDate) this.dueDate = new Date();
             endDate.setMonth(
                 this.dueDate.getMonth() + +regexResult[0].match(/\d+/),
             );
         }
+
+        this.recurrent.iniDate = startDate;
         this.recurrent.endDate = endDate;
     }
 
@@ -328,7 +347,7 @@ class Task {
 }
 
 // test
-const s = new Task('desde mañana y cada 8 días durante noviembre ');
+const s = new Task('días durante febrero');
 // const as = new Task('todos los lunes durante abril carajillo');
 // const sas = new Task('todos los lunes durante 2 meses carajillo');
 // const mas = new Task('cada 8 días carebola');
