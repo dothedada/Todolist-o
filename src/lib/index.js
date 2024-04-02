@@ -198,7 +198,7 @@ class Task {
                 parameter: regexResult,
             };
         } else {
-            this.recurrent.baseDate = new Date(this.recurrent.nextDue);
+            this.recurrent.baseDate = new Date(this.dueDate);
         }
 
         const dateValues = this.recurrent.parameter;
@@ -213,10 +213,10 @@ class Task {
                 nextDue.setDate(nextDue.getDate() + +dateValues[1] * 7);
 
             if (/^day|^dia/.test(dateValues[2]))
-                nextDue.setDate(nextDue.getDate() + (+dateValues[1] - 1));
+                nextDue.setDate(nextDue.getDate() + +dateValues[1]);
         } while (nextDue < new Date());
 
-        this.recurrent.nextDue = nextDue;
+        this.dueDate = nextDue;
     }
 
     setRecurrentCount(regexResult) {
@@ -298,7 +298,6 @@ class Task {
             this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
             this.taskRenderLength = this.taskRender.length;
 
-            // NOTE: Inyecta los enlaces en el html
             this.links.display.forEach((url, index) => {
                 this.taskRender = this.taskRender.replace(url, (match) =>
                     exp.mail.test(match)
@@ -310,16 +309,13 @@ class Task {
     }
 
     updateTask(prompt) {
-        Object.keys(this).forEach((key) => {
-            Reflect.deleteProperty(this, key);
-        });
+        Object.keys(this).forEach((key) => Reflect.deleteProperty(this, key));
         this.parseTask(prompt);
         this.createCleanTaks();
     }
 
     readTask() {
         console.log(JSON.stringify(this, null, 2));
-        // console.log(Object.keys(this))
     }
 
     markDone() {
@@ -331,27 +327,16 @@ class Task {
             this.done = true;
         }
 
+        if (this.recurrent.count) this.recurrent.current += 1;
         if (this.recurrent.class === 'absolute') this.setRecurrentDateAbs();
         if (this.recurrent.class === 'relative') this.setRecurrentDateRel();
     }
 }
 
 // test
-const s = new Task('todos los 1 ');
-// const as = new Task('todos los lunes durante abril carajillo');
-// const sas = new Task('todos los lunes durante 2 meses carajillo');
-// const mas = new Task('cada 8 días carebola');
-// const masa = new Task('durante 2 meses ǹñnnnnn');
+const s = new Task('cada 4 dias 2 veces ');
 
 s.readTask();
 s.markDone();
-console.log(s.done);
-s.readTask();
-// s.markDone();
-// s.readTask();
-// s.markDone();
-// s.readTask();
-// as.readTask();
-// sas.readTask();
-// mas.readTask();
-// masa.readTask();
+s.updateTask('#meLLeva!!! www.mmejia.com www.google.com/tijuana')
+s.readTask()
