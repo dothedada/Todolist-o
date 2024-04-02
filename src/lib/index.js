@@ -97,7 +97,6 @@ class Task {
     }
 
     setTimer(regexResult) {
-        console.log(regexResult)
         const units = /h/i.test(regexResult[2]) ? 3600 : 60;
         this.timer = +regexResult[1] * units;
         this.timerPast = 0;
@@ -208,21 +207,19 @@ class Task {
     }
 
     setRecurrentLapse(regexResult) {
+        console.log(regexResult)
         if (!this.recurrent) this.recurrent = {};
-        this.recurrent.lapse = true;
-        const recurrentDate = regexResult;
 
-        if (/veces|times/i.test(recurrentDate)) {
-            this.recurrent.total = +recurrentDate[4];
-            this.recurrent.current = !regexResult
-                ? (this.recurrent.current += 1)
-                : 0;
+        if (/veces|times/i.test(regexResult)) {
+            this.recurrent.total = +regexResult[3];
+            this.recurrent.current = 0;
             return;
         }
 
         const endDate = new Date();
-        if (!/\d+/.test(recurrentDate[1])) {
-            const month = getDayMonthIndex(months.es, recurrentDate[1]);
+
+        if (!/\d+/.test(regexResult[1])) {
+            const month = getDayMonthIndex(months.es, regexResult[1]);
             endDate.setMonth(month);
             endDate.setFullYear(
                 endDate <= new Date()
@@ -233,7 +230,7 @@ class Task {
         } else {
             if (!this.dueDate) this.dueDate = new Date();
             endDate.setMonth(
-                this.dueDate.getMonth() + +recurrentDate[0].match(/\d+/),
+                this.dueDate.getMonth() + +regexResult[0].match(/\d+/),
             );
         }
         this.recurrent.endDate = endDate;
@@ -318,7 +315,7 @@ class Task {
 
 // test
 const s = new Task(
-    't:5m durante 2 meses carachimba ingo@nnnn.com www.carajillo.com/blablabla',
+    'durante 2 meses carachimba ingo@nnnn.com www.carajillo.com/blablabla',
 );
 // const as = new Task('todos los lunes durante abril carajillo');
 // const sas = new Task('todos los lunes durante 2 meses carajillo');
