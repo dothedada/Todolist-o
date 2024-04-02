@@ -7,8 +7,6 @@ import {
     setNextWeekDay,
 } from './dateCalculations.js';
 // TODO:
-// 1- crear método para actualizar el due date en tareas recurrentes
-// Nuevo módulo para la administración de tareas
 // 2- Crear la biblioteca de tareas
 // 3- creación
 // 4- eliminar
@@ -39,6 +37,7 @@ class Task {
         });
         this.parseTask(prompt);
         this.createCleanTaks();
+        this.injectTaskElements();
 
         // console.timeEnd('Tiempo creación de tarea:');
     }
@@ -277,17 +276,6 @@ class Task {
     }
 
     createCleanTaks() {
-        if (this.project) {
-            this.taskRender = this.taskRender.replace(exp.project, '');
-        }
-
-        if (this.categories) {
-            this.taskRender = this.taskRender.replace(exp.category, '');
-        }
-
-        this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
-        this.taskRenderLength = this.taskRender.length;
-
         if (this.links) {
             this.links.url.forEach((url, index) => {
                 this.taskRender = this.taskRender.replace(
@@ -295,17 +283,29 @@ class Task {
                     this.links.display[index],
                 );
             });
-            this.taskRender = this.taskRender.trim().replace(/\s+/g, ' ');
-            this.taskRenderLength = this.taskRender.length;
-
-            this.links.display.forEach((url, index) => {
-                this.taskRender = this.taskRender.replace(url, (match) =>
-                    exp.mail.test(match)
-                        ? `<a href="${url}">${this.links.display[index]}</a>`
-                        : `<a href="${url}" target="_blank">${this.links.display[index]}</a>`,
-                );
-            });
         }
+
+        this.taskRender = this.taskRender
+            .replace(exp.project, '')
+            .replace(exp.category, '')
+            .replace(exp.es.timer, '')
+            .trim()
+            .replace(/\s+/g, ' ');
+
+        this.taskRenderLength = this.taskRender.length;
+    }
+
+    injectTaskElements() {
+        if (this.timer) {
+            this.taskRender = `<button class="timer">${this.timer - this.timerPast}t</button>${this.taskRender}`;
+        }
+        this.links.display.forEach((url, index) => {
+            this.taskRender = this.taskRender.replace(url, (match) =>
+                exp.mail.test(match)
+                    ? `<a href="${url}">${this.links.display[index]}</a>`
+                    : `<a href="${url}" target="_blank">${this.links.display[index]}</a>`,
+            );
+        });
     }
 
     updateTask(prompt) {
@@ -334,9 +334,6 @@ class Task {
 }
 
 // test
-const s = new Task('cada 4 dias 2 veces ');
+const s = new Task('cada 4 dias www.g.com/asd  carajo i@a.co t:3m');
 
 s.readTask();
-s.markDone();
-s.updateTask('#meLLeva!!! www.mmejia.com www.google.com/tijuana')
-s.readTask()
