@@ -102,35 +102,6 @@ class Task {
         this.timerPast = 0;
     }
 
-    setRecurrentDateAbs(regexResult = undefined) {
-        if (regexResult) this.recurrent = { abs: 1, parameter: regexResult };
-        const recurrentDate = this.recurrent.parameter;
-        const nextDue = new Date();
-
-        if (!/\d/.test(recurrentDate[0])) {
-            this.recurrent.day = getDayMonthIndex(
-                daysWeek.es,
-                recurrentDate[1],
-            );
-            nextDue.setDate(setNextWeekDay(this.recurrent.day, nextDue));
-        } else {
-            this.recurrent.date = +recurrentDate[1];
-
-            nextDue.setDate(
-                this.recurrent.date > getLastDayMonth(nextDue)
-                    ? getLastDayMonth(nextDue)
-                    : this.recurrent.date,
-            );
-            nextDue.setMonth(
-                nextDue.getDate() < new Date().getDate()
-                    ? nextDue.getMonth() + 1
-                    : nextDue.getMonth(),
-            );
-        }
-
-        this.dueDate = nextDue;
-    }
-
     setFixedDate1(regexResult) {
         const dueDate = new Date();
 
@@ -190,25 +161,68 @@ class Task {
         this.dueDate = dueDate;
     }
 
-    setRecurrentDateRel(regexResult) {
-        if (regexResult) this.recurrent = { abs: 0, parameter: regexResult };
+    setRecurrentDateAbs(regexResult = undefined) {
+        if (regexResult)
+            this.recurrent = { class: 'absolute', parameter: regexResult };
         const recurrentDate = this.recurrent.parameter;
+        const nextDue = new Date();
 
-        let days = +recurrentDate[1];
-        if (/^week|^semana/.test(recurrentDate[2])) days *= 7;
-        if (/^month|^mes/.test(recurrentDate[2])) days *= 30;
-        if (/^day|^dia/.test(recurrentDate[2])) days -= 1;
-        if (!this.dueDate) {
-            this.dueDate = new Date();
-            this.dueDate.setDate(this.dueDate.getDate() + days);
+        if (!/\d/.test(recurrentDate[0])) {
+            this.recurrent.day = getDayMonthIndex(
+                daysWeek.es,
+                recurrentDate[1],
+            );
+            nextDue.setDate(setNextWeekDay(this.recurrent.day, nextDue));
+        } else {
+            this.recurrent.date = +recurrentDate[1];
+
+            nextDue.setDate(
+                this.recurrent.date > getLastDayMonth(nextDue)
+                    ? getLastDayMonth(nextDue)
+                    : this.recurrent.date,
+            );
+            nextDue.setMonth(
+                nextDue.getDate() < new Date().getDate()
+                    ? nextDue.getMonth() + 1
+                    : nextDue.getMonth(),
+            );
         }
 
-        this.recurrent.daysSpan = days;
+        this.dueDate = nextDue;
+    }
+
+    setRecurrentDateRel(regexResult = undefined) {
+        if (regexResult) {
+            this.recurrent = {
+                class: 'relative',
+                baseDate: this.dueDate || new Date(),
+                parameter: regexResult,
+            };
+        } else {
+            this.recurrent.baseDate = new Date(this.recurrent.nextDue);
+        }
+
+        const dateValues = this.recurrent.parameter;
+        const nextDue = new Date(this.recurrent.baseDate);
+
+        // NOTE: loop para cuando la tarea se marca mucho luego del nextDue
+        do {
+            if (/^month|^mes/.test(dateValues[2]))
+                nextDue.setMonth(nextDue.getMonth() + +dateValues[1]);
+
+            if (/^week|^semana/.test(dateValues[2]))
+                nextDue.setDate(nextDue.getDate() + +dateValues[1] * 7);
+
+            if (/^day|^dia/.test(dateValues[2]))
+                nextDue.setDate(nextDue.getDate() + (+dateValues[1] - 1));
+        } while (nextDue < new Date());
+
+        this.recurrent.nextDue = nextDue;
     }
 
     setRecurrentLapse(regexResult) {
-        console.log(regexResult)
-        if (!this.recurrent) this.recurrent = {};
+        console.log('blablabla')
+        if (!this.recurrent) this.recurrent = { class: 'lapse' };
 
         if (/veces|times/i.test(regexResult)) {
             this.recurrent.total = +regexResult[3];
@@ -308,15 +322,13 @@ class Task {
             this.done = true;
             return;
         }
-        if (this.recurrent.abs === 1) this.setRecurrentDateAbs();
-        if (this.recurrent.abs === 0) this.setRecurrentDateRel();
+        if (this.recurrent.class === 'absolute') this.setRecurrentDateAbs();
+        if (this.recurrent.class === 'relative') this.setRecurrentDateRel();
     }
 }
 
 // test
-const s = new Task(
-    'durante 2 meses carachimba ingo@nnnn.com www.carajillo.com/blablabla',
-);
+const s = new Task('desde mañana y cada 8 días durante noviembre ');
 // const as = new Task('todos los lunes durante abril carajillo');
 // const sas = new Task('todos los lunes durante 2 meses carajillo');
 // const mas = new Task('cada 8 días carebola');
