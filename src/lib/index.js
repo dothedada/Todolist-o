@@ -15,7 +15,7 @@ import {
 // 5- actualizar
 // 6- filtrar
 // 7- ordenar
-//
+// WARN: revisar el day cuando se establece un periodo de recurrecia futuro
 
 class Task {
     constructor(prompt) {
@@ -164,24 +164,22 @@ class Task {
     }
 
     setRecurrentDateAbs(regexResult = undefined) {
-        if (regexResult)
+        if (regexResult) {
             this.recurrent = { class: 'absolute', parameter: regexResult };
+        }
         const recurrentDate = this.recurrent.parameter;
         const nextDue = new Date();
 
-        if (!/\d/.test(recurrentDate[0])) {
-            this.recurrent.day = getDayMonthIndex(
-                daysWeek.es,
-                recurrentDate[1],
-            );
-            nextDue.setDate(setNextWeekDay(this.recurrent.day, nextDue));
+        if (!/\d/.test(recurrentDate[1])) {
+            const day = getDayMonthIndex(daysWeek.es, recurrentDate[1]);
+            nextDue.setDate(setNextWeekDay(day, nextDue));
         } else {
-            this.recurrent.date = +recurrentDate[1];
+            const date = +recurrentDate[1];
 
             nextDue.setDate(
-                this.recurrent.date > getLastDayMonth(nextDue)
+                date > getLastDayMonth(nextDue)
                     ? getLastDayMonth(nextDue)
-                    : this.recurrent.date,
+                    : date,
             );
             nextDue.setMonth(
                 nextDue.getDate() < new Date().getDate()
@@ -207,7 +205,7 @@ class Task {
         const dateValues = this.recurrent.parameter;
         const nextDue = new Date(this.recurrent.baseDate);
 
-        // NOTE: loop para cuando la tarea se marca mucho luego del nextDue
+        // NOTE: loop para cuando la tarea se realiza después del nextDue
         do {
             if (/^month|^mes/.test(dateValues[2]))
                 nextDue.setMonth(nextDue.getMonth() + +dateValues[1]);
@@ -326,14 +324,13 @@ class Task {
     }
 
     markDone() {
-        if (this.recurrent.current !== undefined) this.recurrent.current += 1;
         if (
             !this.recurrent ||
             new Date() >= this.recurrent.endDate ||
-            this.recurrent.current >= this.recurrent.total
+            this.recurrent.current + 1 >= this.recurrent.total
         ) {
-            this.done = true;
-            return;
+            this.done = true
+            return
         }
         if (this.recurrent.class === 'absolute') this.setRecurrentDateAbs();
         if (this.recurrent.class === 'relative') this.setRecurrentDateRel();
@@ -341,13 +338,15 @@ class Task {
 }
 
 // test
-const s = new Task('dentro de 12/12 y durante enero mese 8 veces');
+const s = new Task('todos l veces');
 // const as = new Task('todos los lunes durante abril carajillo');
 // const sas = new Task('todos los lunes durante 2 meses carajillo');
 // const mas = new Task('cada 8 días carebola');
 // const masa = new Task('durante 2 meses ǹñnnnnn');
 
 s.readTask();
+s.markDone()
+console.log(s.done)
 // s.markDone();
 // s.readTask();
 // s.markDone();
