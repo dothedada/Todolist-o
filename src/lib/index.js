@@ -232,6 +232,7 @@ class Task {
 
         let startDate;
         let endDate;
+        if (!this.dueDate) this.dueDate = new Date();
 
         if (!/\d+/.test(regexResult[1])) {
             const month = getDayMonthIndex(months.es, regexResult[1]);
@@ -255,13 +256,14 @@ class Task {
                 getLastDayMonth(baseDate),
             );
 
-            if (!this.dueDate) this.dueDate = new Date()
             this.dueDate.setMonth(baseDate.getMonth());
             this.dueDate.setFullYear(baseDate.getFullYear());
         } else {
-            if (!this.dueDate) this.dueDate = new Date();
-            endDate.setMonth(
-                this.dueDate.getMonth() + +regexResult[0].match(/\d+/),
+            startDate = new Date(this.dueDate.getTime());
+            endDate = new Date(
+                this.dueDate.getFullYear(),
+                this.dueDate.getMonth() + +regexResult[2],
+                this.dueDate.getDate(),
             );
         }
 
@@ -347,7 +349,7 @@ class Task {
 }
 
 // test
-const s = new Task('días durante febrero');
+const s = new Task('dentro de 12/12 y durante 2 mese');
 // const as = new Task('todos los lunes durante abril carajillo');
 // const sas = new Task('todos los lunes durante 2 meses carajillo');
 // const mas = new Task('cada 8 días carebola');
