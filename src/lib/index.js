@@ -66,6 +66,7 @@ class Task {
         const recurrentAbsDef = taskParse.match(exp.es.loopAbsolute);
         const recurrentRelDef = taskParse.match(exp.es.loopRelative);
         const recurrentLapse = taskParse.match(exp.es.loopPeriod);
+        const recurrentCount = taskParse.match(exp.es.loopCount);
         const date1RR = taskParse.match(exp.es.date1);
         const date2RR = taskParse.match(exp.es.date2);
         const date3RR = taskParse.match(exp.es.date3);
@@ -83,6 +84,7 @@ class Task {
         if (!this.dueDate && date3RR) this.setFixedDate3(date3RR);
         if (!this.dueDate && date4RR) this.setFixedDate4(date4RR);
         if (recurrentRelDef) this.setRecurrentDateRel(recurrentRelDef);
+        if (recurrentCount) this.setRecurrentCount(recurrentCount);
         if (recurrentLapse) this.setRecurrentLapse(recurrentLapse);
         if (mailRR) this.getLinks(mailRR, 'mail');
         if (urlRR) this.getLinks(urlRR, 'url');
@@ -220,15 +222,17 @@ class Task {
         this.recurrent.nextDue = nextDue;
     }
 
+    setRecurrentCount(regexResult) {
+        if (!this.recurrent) this.recurrent = {};
+        this.recurrent.count = true;
+
+        this.recurrent.total = +regexResult[3];
+        this.recurrent.current = 0;
+    }
+
     setRecurrentLapse(regexResult) {
         if (!this.recurrent) this.recurrent = {};
         this.recurrent.lapse = true;
-
-        if (/veces|times/i.test(regexResult)) {
-            this.recurrent.total = +regexResult[3];
-            this.recurrent.current = 0;
-            return;
-        }
 
         let startDate;
         let endDate;
@@ -349,7 +353,7 @@ class Task {
 }
 
 // test
-const s = new Task('dentro de 12/12 y durante 2 mese');
+const s = new Task('dentro de 12/12 y durante febrero mese');
 // const as = new Task('todos los lunes durante abril carajillo');
 // const sas = new Task('todos los lunes durante 2 meses carajillo');
 // const mas = new Task('cada 8 días carebola');
