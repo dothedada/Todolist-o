@@ -224,46 +224,34 @@ class Task {
 
     setRecurrentCount(regexResult) {
         if (!this.recurrent) this.recurrent = {};
-        this.recurrent.count = true;
 
-        this.recurrent.total = +regexResult[3];
+        this.recurrent.count = true;
+        this.recurrent.total = +regexResult[1];
         this.recurrent.current = 0;
     }
 
     setRecurrentLapse(regexResult) {
         if (!this.recurrent) this.recurrent = {};
+        if (!this.dueDate) this.dueDate = new Date();
         this.recurrent.lapse = true;
 
-        let startDate;
+        let iniDate;
         let endDate;
-        if (!this.dueDate) this.dueDate = new Date();
 
         if (!/\d+/.test(regexResult[1])) {
             const month = getDayMonthIndex(months.es, regexResult[1]);
-            const baseDate = new Date();
+            const year =
+                new Date().setMonth(month) < new Date()
+                    ? new Date().getFullYear() + 1
+                    : new Date().getFullYear();
 
-            baseDate.setMonth(month);
-            baseDate.setFullYear(
-                baseDate < new Date()
-                    ? baseDate.getFullYear() + 1
-                    : baseDate.getFullYear(),
-            );
+            iniDate = new Date(year, month, 1);
+            endDate = new Date(year, month, getLastDayMonth(iniDate));
 
-            startDate = new Date(
-                baseDate.getFullYear(),
-                baseDate.getMonth(),
-                1,
-            );
-            endDate = new Date(
-                baseDate.getFullYear(),
-                baseDate.getMonth(),
-                getLastDayMonth(baseDate),
-            );
-
-            this.dueDate.setMonth(baseDate.getMonth());
-            this.dueDate.setFullYear(baseDate.getFullYear());
+            this.dueDate.setMonth(month);
+            this.dueDate.setFullYear(year);
         } else {
-            startDate = new Date(this.dueDate.getTime());
+            iniDate = new Date(this.dueDate.getTime());
             endDate = new Date(
                 this.dueDate.getFullYear(),
                 this.dueDate.getMonth() + +regexResult[2],
@@ -271,7 +259,7 @@ class Task {
             );
         }
 
-        this.recurrent.iniDate = startDate;
+        this.recurrent.iniDate = iniDate;
         this.recurrent.endDate = endDate;
     }
 
@@ -353,7 +341,7 @@ class Task {
 }
 
 // test
-const s = new Task('dentro de 12/12 y durante febrero mese');
+const s = new Task('dentro de 12/12 y durante enero mese 8 veces');
 // const as = new Task('todos los lunes durante abril carajillo');
 // const sas = new Task('todos los lunes durante 2 meses carajillo');
 // const mas = new Task('cada 8 días carebola');
