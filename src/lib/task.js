@@ -8,6 +8,8 @@ import {
 // 1) revisar el day cuando se establece un periodo de recurrecia futuro
 // 2) limpiar los regex date*
 
+let count = 0
+
 export default class Task {
     constructor(prompt) {
         Object.defineProperties(this, {
@@ -21,9 +23,10 @@ export default class Task {
                 value: new Date(),
             },
             taskID: {
-                value: `${new Date().getTime().toString(26)}_${Math.floor(
-                    Math.random() * new Date().getTime(),
-                ).toString(26)}`,
+                value: ++count
+                // value: `${new Date().getTime().toString(26)}_${Math.floor(
+                //     Math.random() * new Date().getTime(),
+                // ).toString(26)}`,
             },
         });
 
@@ -290,6 +293,7 @@ export default class Task {
             this.taskRender = `<button class="timer">${this.timer - this.timerPast}s</button> ${this.taskRender}`;
         }
 
+        if (!this.links) return
         this.links.display.forEach((url, index) => {
             this.taskRender = this.taskRender.replace(url, (match) =>
                 exp.mail.test(match)
@@ -316,6 +320,7 @@ export default class Task {
             this.recurrent.current + 1 >= this.recurrent.total
         ) {
             this.done = true;
+            return
         }
 
         if (this.timer) this.timerPast = 0;
