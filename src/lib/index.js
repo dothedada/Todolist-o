@@ -67,20 +67,36 @@ const getTasksByDay = (() => {
             return task.dueDate.getDate() > new Date().getDate() + 1;
         });
 
-    // const pastDue = () => 
-    //     toDo.tasks.filter((task) => {
-    //         if (!task.dueDate || task.done) return false
-    //         return task.dueDate.getDate() < new Date().getDate()
-    //     })
+    const pastDue = () =>
+        toDo.tasks.filter((task) => {
+            if (!task.dueDate || task.done) return false;
+            return task.dueDate < new Date().setMilliseconds(0);
+        });
 
-    return { anytime, today, tomorrow, future };
+    const eraseable = () => {
+        const weekAgo = new Date();
+        weekAgo.setMilliseconds(0);
+        weekAgo.setDate(-7);
+
+        return toDo.tasks.filter((task) => {
+            if (!task.done) return false;
+            return task.doneDate < weekAgo;
+        });
+    };
+
+    const forgotten = () => {
+        const monthAgo = new Date();
+        monthAgo.setMilliseconds(0);
+        monthAgo.setMonth(-1);
+        toDo.tasks.filter((task) => {
+            if (!task.dueDate || task.done) return false;
+            return task.dueDate < monthAgo;
+        });
+    };
+
+    return { anytime, today, tomorrow, future, pastDue, eraseable, forgotten };
 })();
 
 toDo.createTask('hoy vamos a saltar lazo');
 toDo.createTask('mañana vamos a saltar por la ventana');
-toDo.createTask('tratemos de no morir');
-
-console.log(toDo.tasks);
-console.log(getTasksByDay.anytime());
-console.log(getTasksByDay.today());
-console.log(getTasksByDay.tomorrow());
+toDo.createTask('tratemos de no morir 3/3');

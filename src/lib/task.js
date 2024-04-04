@@ -110,9 +110,9 @@ export default class Task {
             day < getLastDayMonth(dueDate) ? day : getLastDayMonth(dueDate),
         );
         dueDate.setMonth(month);
-        if (dueDate < new Date()) {
-            dueDate.setFullYear(dueDate.getFullYear() + 1);
-        }
+        // if (dueDate < new Date()) {
+        //     dueDate.setFullYear(dueDate.getFullYear() + 1);
+        // }
 
         this.dueDate = dueDate;
     }
