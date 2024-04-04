@@ -75,12 +75,39 @@ const filteredBy = {
     recurrent: (tasks) => tasks.filter((task) => task.recurrent),
 };
 
-const globalOperations = {
+const groupFuntions = {
     load: () => {
         const tasksIDs = Object.keys(localStorage).filter((id) =>
             /^toDo_/.test(id),
         );
-        tasksIDs.forEach(task => toDo.tasks.push(task))
+        tasksIDs.forEach((task) => toDo.tasks.push(task));
+    },
+
+    sorting: (a, b) => {
+        if (a.done && !b.done) return 1
+        if (!a.done && b.done) return -1 
+        if ('dueDate' in a && 'dueDate' in b) return a.dueDate - b.dueDate;
+
+        if ('dueDate' in a) return -1;
+        if ('dueDate' in b) return 1;
+
+        return a.taskCreation - b.taskCreation;
+    },
+
+    sortByDate: () => toDo.tasks.sort(groupFuntions.sorting),
+
+    sortByRelevance: () => {
+        toDo.tasks.sort((a, b) => {
+            if (a.urgent && b.urgent) return groupFuntions.sorting(a, b);
+            if (a.urgent) return -1;
+            if (b.urgent) return 1;
+
+            if (a.important && b.important) return groupFuntions.sorting(a, b);
+            if (a.important) return -1;
+            if (b.important) return 1;
+
+            return groupFuntions.sorting(a, b);
+        });
     },
 
     makeDueTasksUrgent: () => {
@@ -116,16 +143,24 @@ const globalOperations = {
         doneTasks.forEach((task) => toDo.removeTask(task.taskID));
     },
 
-    purge: () => {
-        globalOperations.deleteDoneTasks();
-        globalOperations.deleteTasksForgotten();
-        globalOperations.makeDueTasksUrgent();
+    init: () => {
+        groupFuntions.load();
+        groupFuntions.deleteDoneTasks();
+        groupFuntions.deleteTasksForgotten();
+        groupFuntions.makeDueTasksUrgent();
     },
 };
 
+toDo.createTask('quiero no sentirme así');
 toDo.createTask('hoy vamos a saltar lazo');
-toDo.createTask('mañana vamos a saltar * por la ventana @carajo');
-toDo.createTask('tratemos de no t:3h morir 20/3');
+toDo.createTask('mañana vamos a saltar * por la ventana ');
+toDo.createTask('estoy bastante cansado');
+toDo.createTask('tratemos de no morir 20/3');
+
+toDo.markTaskDone('toDo_5')
+toDo.markTaskDone('toDo_2')
+
+groupFuntions.sortByDate();
+
 console.log(toDo.tasks);
-toDo.markTaskDone(2);
-console.log(toDo.tasks);
+

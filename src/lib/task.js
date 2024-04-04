@@ -4,11 +4,11 @@ import {
     getLastDayMonth,
     setNextWeekDay,
 } from './dateFunctions.js';
-// WARN: 
+// WARN:
 // 1) revisar el day cuando se establece un periodo de recurrecia futuro
 // 2) limpiar los regex date*
 
-let count = 0
+let count = 0;
 
 export default class Task {
     constructor(prompt) {
@@ -23,8 +23,8 @@ export default class Task {
                 value: new Date(),
             },
             taskID: {
-                value: ++count
-                // value: `${new Date().getTime().toString(26)}_${Math.floor(
+                value: `toDo_${++count}`,
+                // value: `toDo_${new Date().getTime().toString(26)}_${Math.floor(
                 //     Math.random() * new Date().getTime(),
                 // ).toString(26)}`,
             },
@@ -294,7 +294,7 @@ export default class Task {
             this.taskRender = `<button class="timer">${this.timer - this.timerPast}s</button> ${this.taskRender}`;
         }
 
-        if (!this.links) return
+        if (!this.links) return;
         this.links.display.forEach((url, index) => {
             this.taskRender = this.taskRender.replace(url, (match) =>
                 exp.mail.test(match)
@@ -321,12 +321,12 @@ export default class Task {
             new Date() >= this.recurrent.endDate ||
             this.recurrent.current + 1 >= this.recurrent.total
         ) {
-            const hecho = new Date()
-            hecho.setDate(new Date().getDate() -10)
-            this.doneDate = hecho
+            const hecho = new Date();
+            hecho.setDate(new Date().getDate() - 10);
+            this.doneDate = hecho;
             // this.doneDate = new Date()
             this.done = true;
-            return
+            return;
         }
 
         if (this.timer) this.timerPast = 0;
@@ -336,8 +336,8 @@ export default class Task {
     }
 
     markUndone() {
-        if (!this.done) return
-        this.done = false
-        delete this.doneDate
+        if (!this.done) return;
+        this.done = false;
+        delete this.doneDate;
     }
 }
