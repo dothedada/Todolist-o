@@ -11,55 +11,76 @@ import Task from './task.js';
 // const as = new Task('@hola carenalga, 12/3 esta es una www.prueba.com')
 // as.readTask()
 
-const lib = (() => {
-    const tasks = []
+const toDo = (() => {
+    const tasks = [];
 
-    const create = (taskPrompt) => {
-        const newTask = new Task(taskPrompt)
-        tasks.unshift(newTask)
+    const createTask = (taskPrompt) => {
+        const newTask = new Task(taskPrompt);
+        tasks.unshift(newTask);
         // localStorage.setItem(newTask.taskID, newTask)
-    }
+    };
 
-    const find = (taskID) => tasks.findIndex(task => task.taskID === taskID)
+    const getTaskIndex = (taskID) =>
+        tasks.findIndex((task) => task.taskID === taskID);
 
-    const remove = (taskID) => {
-        tasks.splice(find(taskID), 1)
-    }
+    const updateTask = (taskID, newTaskPrompt) => {
+        tasks[getTaskIndex(taskID)].updateTask(newTaskPrompt);
+        // localStorage.setItem(taskID, tasks[getTaskIndex(taskID)])
+    };
 
-    const done = (taskID) => {
-        tasks[find(taskID)].markDone()
-    }
-    
-    const update = (taskID, newTaskPrompt) => {
-        tasks[find(taskID)].updateTask(newTaskPrompt)
-    }
+    const markTaskDone = (taskID) => {
+        tasks[getTaskIndex(taskID)].markDone();
+        // localStorage.setItem(taskID, tasks[getTaskIndex(taskID)])
+    };
+    const removeTask = (taskID) => {
+        tasks.splice(getTaskIndex(taskID), 1);
+        // localStorage.removeItem(taskID)
+    };
 
-    const arrange = () => {
+    return {
+        tasks,
+        createTask,
+        removeTask,
+        markTaskDone,
+        updateTask,
+    };
+})();
 
-    }
+const getTasksByDay = (() => {
+    const anytime = () => toDo.tasks.filter((task) => !task.dueDate);
 
-    const todayTasks = () => {
-        // tasks.forEach(task => console.log(task.dueDate.getDate() === new Date().getDate()))
-        // console.log(tasks[2].dueDate.getDate() === new Date().getDate())
-        const conFecha = tasks.filter(task => task.dueDate).filter(task => task.dueDate.getDate() === new Date().getDate())
-        return conFecha
-    }
+    const today = () =>
+        toDo.tasks.filter((task) => {
+            if (!task.dueDate) return false;
+            return task.dueDate.getDate() === new Date().getDate();
+        });
 
-    const filter = (by, value) => {
-        // urgente importante timer recurrentes realizadas no realizadas
-        // hoy mañana luego
-        // proyecto categoría 
-    }
+    const tomorrow = () =>
+        toDo.tasks.filter((task) => {
+            if (!task.dueDate) return false;
+            return task.dueDate.getDate() === new Date().getDate() + 1;
+        });
 
-    return { tasks, create, find, remove, done, update, todayTasks}
-})()
+    const future = () =>
+        toDo.tasks.filter((task) => {
+            if (!task.dueDate) return false;
+            return task.dueDate.getDate() > new Date().getDate() + 1;
+        });
 
+    // const pastDue = () => 
+    //     toDo.tasks.filter((task) => {
+    //         if (!task.dueDate || task.done) return false
+    //         return task.dueDate.getDate() < new Date().getDate()
+    //     })
 
-lib.create('@carajo me lleva hoy')
-lib.create('#carajo me lleva hoy')
-lib.create('hijo de los mil changos!!! @laPutaMadre mañana')
-console.log(lib.tasks)
-console.log(lib.todayTasks())
-lib.todayTasks()[0].updateTask('carajillloooooo')
-console.log(lib.tasks)
+    return { anytime, today, tomorrow, future };
+})();
 
+toDo.createTask('hoy vamos a saltar lazo');
+toDo.createTask('mañana vamos a saltar por la ventana');
+toDo.createTask('tratemos de no morir');
+
+console.log(toDo.tasks);
+console.log(getTasksByDay.anytime());
+console.log(getTasksByDay.today());
+console.log(getTasksByDay.tomorrow());
