@@ -1,7 +1,6 @@
 import Task from './task.js';
 // TODO:
-// Crear la biblioteca de tareas con las siguientes posibilidades
-// 6- ordenar tareas
+// 1- crear la funcion para renderizado de las tareas
 //
 // WARN: revisar el day cuando se establece un periodo de recurrecia futuro
 
@@ -84,8 +83,7 @@ const groupFuntions = {
     },
 
     sorting: (a, b) => {
-        if (a.done && !b.done) return 1
-        if (!a.done && b.done) return -1 
+
         if ('dueDate' in a && 'dueDate' in b) return a.dueDate - b.dueDate;
 
         if ('dueDate' in a) return -1;
@@ -94,10 +92,19 @@ const groupFuntions = {
         return a.taskCreation - b.taskCreation;
     },
 
-    sortByDate: () => toDo.tasks.sort(groupFuntions.sorting),
+    sortByDate: () => {
+        toDo.tasks.sort((a, b) => {
+            if (a.done && !b.done) return 1
+            if (!a.done && b.done) return -1 
+            return groupFuntions.sorting(a, b)
+        })
+    },
 
     sortByRelevance: () => {
         toDo.tasks.sort((a, b) => {
+            if (a.done && !b.done) return 1
+            if (!a.done && b.done) return -1 
+
             if (a.urgent && b.urgent) return groupFuntions.sorting(a, b);
             if (a.urgent) return -1;
             if (b.urgent) return 1;
@@ -150,17 +157,3 @@ const groupFuntions = {
         groupFuntions.makeDueTasksUrgent();
     },
 };
-
-toDo.createTask('quiero no sentirme así');
-toDo.createTask('hoy vamos a saltar lazo');
-toDo.createTask('mañana vamos a saltar * por la ventana ');
-toDo.createTask('estoy bastante cansado');
-toDo.createTask('tratemos de no morir 20/3');
-
-toDo.markTaskDone('toDo_5')
-toDo.markTaskDone('toDo_2')
-
-groupFuntions.sortByDate();
-
-console.log(toDo.tasks);
-
