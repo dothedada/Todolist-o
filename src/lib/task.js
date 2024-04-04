@@ -320,6 +320,7 @@ export default class Task {
             new Date() >= this.recurrent.endDate ||
             this.recurrent.current + 1 >= this.recurrent.total
         ) {
+            this.doneDate = new Date()
             this.done = true;
             return
         }
@@ -328,5 +329,11 @@ export default class Task {
         if (this.recurrent.count) this.recurrent.current += 1;
         if (this.recurrent.class === 'absolute') this.setRecurrentDateAbs();
         if (this.recurrent.class === 'relative') this.setRecurrentDateRel();
+    }
+
+    markUndone() {
+        if (!this.done) return
+        this.done = false
+        delete this.doneDate
     }
 }
