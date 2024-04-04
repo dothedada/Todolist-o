@@ -303,24 +303,27 @@ export default class Task {
         });
     }
 
-    update(prompt) {
+    updateTask(prompt) {
         Object.keys(this).forEach((key) => Reflect.deleteProperty(this, key));
         this.done = false;
         this.parseTask(prompt);
         this.createCleanTaks();
     }
 
-    read() {
+    readTask() {
         console.log(JSON.stringify(this, null, 2));
     }
 
-    done() {
+    markDone() {
         if (
             !this.recurrent ||
             new Date() >= this.recurrent.endDate ||
             this.recurrent.current + 1 >= this.recurrent.total
         ) {
-            this.doneDate = new Date()
+            const hecho = new Date()
+            hecho.setDate(new Date().getDate() -10)
+            this.doneDate = hecho
+            // this.doneDate = new Date()
             this.done = true;
             return
         }
@@ -331,7 +334,7 @@ export default class Task {
         if (this.recurrent.class === 'relative') this.setRecurrentDateRel();
     }
 
-    undone() {
+    markUndone() {
         if (!this.done) return
         this.done = false
         delete this.doneDate
