@@ -92,9 +92,12 @@ const filteredBy = (() => {
     return { importance, urgent, hasTimer, done, undone, recurrent };
 })();
 
-// const makeDueTasksUrgent = () => {
-//     getTasksByDay.pastDue().forEach((task) => {task.urgent = true});
-// };
+const makeDueTasksUrgent = () => {
+    getTasksByDay.pastDue().forEach((task) => {
+        const modifiedTask = task 
+        modifiedTask.urgent = true
+    });
+};
 
 const deleteTasksForgotten = () => {
     const monthAgo = new Date();
@@ -122,14 +125,7 @@ const deleteDoneTasks = () => {
     doneTasks.forEach((task) => toDo.removeTask(task.taskID));
 };
 
-toDo.createTask('hoy vamos a saltar lazo !');
-toDo.createTask('mañana vamos a saltar por * la ventana');
+toDo.createTask('hoy vamos a saltar lazo');
+toDo.createTask('mañana vamos a saltar por la ventana');
 toDo.createTask('tratemos de no t:3h morir 20/3');
 
-toDo.markTaskDone(1)
-
-// makeDueTasksUrgent();
-
-console.log(toDo.tasks);
-deleteDoneTasks()
-console.log(toDo.tasks);

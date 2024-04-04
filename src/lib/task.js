@@ -303,14 +303,14 @@ export default class Task {
         });
     }
 
-    updateTask(prompt) {
+    update(prompt) {
         Object.keys(this).forEach((key) => Reflect.deleteProperty(this, key));
         this.done = false;
         this.parseTask(prompt);
         this.createCleanTaks();
     }
 
-    readTask() {
+    read() {
         console.log(JSON.stringify(this, null, 2));
     }
 
