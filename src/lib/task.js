@@ -303,18 +303,18 @@ export default class Task {
         });
     }
 
-    updateTask(prompt) {
+    update(prompt) {
         Object.keys(this).forEach((key) => Reflect.deleteProperty(this, key));
         this.done = false;
         this.parseTask(prompt);
         this.createCleanTaks();
     }
 
-    readTask() {
+    read() {
         console.log(JSON.stringify(this, null, 2));
     }
 
-    markDone() {
+    done() {
         if (
             !this.recurrent ||
             new Date() >= this.recurrent.endDate ||
@@ -331,7 +331,7 @@ export default class Task {
         if (this.recurrent.class === 'relative') this.setRecurrentDateRel();
     }
 
-    markUndone() {
+    undone() {
         if (!this.done) return
         this.done = false
         delete this.doneDate

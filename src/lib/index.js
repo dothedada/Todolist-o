@@ -8,9 +8,6 @@ import Task from './task.js';
 //
 // WARN: revisar el day cuando se establece un periodo de recurrecia futuro
 
-// const as = new Task('@hola carenalga, 12/3 esta es una www.prueba.com')
-// as.readTask()
-
 const toDo = (() => {
     const tasks = [];
 
@@ -24,12 +21,16 @@ const toDo = (() => {
         tasks.findIndex((task) => task.taskID === taskID);
 
     const updateTask = (taskID, newTaskPrompt) => {
-        tasks[getTaskIndex(taskID)].updateTask(newTaskPrompt);
+        tasks[getTaskIndex(taskID)].update(newTaskPrompt);
         // localStorage.setItem(taskID, tasks[getTaskIndex(taskID)])
     };
 
     const markTaskDone = (taskID) => {
-        tasks[getTaskIndex(taskID)].markDone();
+        tasks[getTaskIndex(taskID)].done();
+        // localStorage.setItem(taskID, tasks[getTaskIndex(taskID)])
+    };
+    const markTaskUndone = (taskID) => {
+        tasks[getTaskIndex(taskID)].undone();
         // localStorage.setItem(taskID, tasks[getTaskIndex(taskID)])
     };
     const removeTask = (taskID) => {
@@ -42,6 +43,7 @@ const toDo = (() => {
         createTask,
         removeTask,
         markTaskDone,
+        markTaskUndone,
         updateTask,
     };
 })();
@@ -84,7 +86,7 @@ const getTasksByDay = (() => {
         });
     };
 
-    const forgotten = () => {
+    const notDoneAndForgotten = () => {
         const monthAgo = new Date();
         monthAgo.setMilliseconds(0);
         monthAgo.setMonth(-1);
@@ -94,9 +96,32 @@ const getTasksByDay = (() => {
         });
     };
 
-    return { anytime, today, tomorrow, future, pastDue, eraseable, forgotten };
+    return {
+        anytime,
+        today,
+        tomorrow,
+        future,
+        pastDue,
+        eraseable,
+        notDoneAndForgotten,
+    };
 })();
 
-toDo.createTask('hoy vamos a saltar lazo');
-toDo.createTask('mañana vamos a saltar por la ventana');
+const filterBy = (() => {
+    // importancia
+    const importance = (tasksList) => tasksList.filter(task => task.important)
+    // urgencia
+    // timer
+    // completadas
+    // no completadas
+    // recurrentes
+    //
+    
+    return { importance }
+})()
+
+toDo.createTask('hoy vamos a saltar lazo !');
+toDo.createTask('mañana vamos a saltar por * la ventana');
 toDo.createTask('tratemos de no morir 3/3');
+
+console.log(filterBy.importance(toDo.tasks))
