@@ -1,7 +1,6 @@
 import Task from './task.js';
 // TODO:
 // Crear la biblioteca de tareas con las siguientes posibilidades
-// 5- filtrar tareas
 // 6- ordenar tareas
 // 7- convertir tareas vencidas en urgentes
 // 8- eliminar tareas no cumplidas luego de una semana de su vencimiento
@@ -13,7 +12,7 @@ const toDo = (() => {
 
     const createTask = (taskPrompt) => {
         const newTask = new Task(taskPrompt);
-        tasks.unshift(newTask);
+        tasks.push(newTask);
         // localStorage.setItem(newTask.taskID, newTask)
     };
 
@@ -107,21 +106,25 @@ const getTasksByDay = (() => {
     };
 })();
 
-const filterBy = (() => {
-    // importancia
-    const importance = (tasksList) => tasksList.filter(task => task.important)
-    // urgencia
-    // timer
-    // completadas
-    // no completadas
-    // recurrentes
-    //
-    
-    return { importance }
-})()
+const filteredBy = (() => {
+    const importance = (tasksList) =>
+        tasksList.filter((task) => task.important);
+    const urgent = (tasksList) => tasksList.filter((task) => task.urgent);
+    const hasTimer = (tasksList) => tasksList.filter((task) => task.timer);
+    const done = (tasksList) => tasksList.filter((task) => task.done);
+    const undone = (tasksList) => tasksList.filter((task) => !task.done);
+    const recurrent = (tasksList) => tasksList.filter((task) => task.recurrent);
+
+    return { importance, urgent, hasTimer, done, undone, recurrent };
+})();
+
+const makeUrgentTasks = () => {
+    getTasksByDay.pastDue().forEach((task) => (task.urgent = true));
+};
 
 toDo.createTask('hoy vamos a saltar lazo !');
 toDo.createTask('mañana vamos a saltar por * la ventana');
-toDo.createTask('tratemos de no morir 3/3');
+toDo.createTask('tratemos de no t:3h morir 3/3');
 
-console.log(filterBy.importance(toDo.tasks))
+makeUrgentTasks()
+console.log(toDo.tasks)
