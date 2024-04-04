@@ -1,7 +1,6 @@
 import Task from './task.js';
 // TODO:
 // Crear la biblioteca de tareas con las siguientes posibilidades
-// 4- actualizar tareas
 // 5- filtrar tareas
 // 6- ordenar tareas
 // 7- convertir tareas vencidas en urgentes
@@ -21,9 +20,7 @@ const lib = (() => {
         // localStorage.setItem(newTask.taskID, newTask)
     }
 
-    const find = (taskID) => {
-        return tasks.findIndex(task => task.taskID === taskID)
-    }
+    const find = (taskID) => tasks.findIndex(task => task.taskID === taskID)
 
     const remove = (taskID) => {
         tasks.splice(find(taskID), 1)
@@ -37,14 +34,32 @@ const lib = (() => {
         tasks[find(taskID)].updateTask(newTaskPrompt)
     }
 
+    const arrange = () => {
 
-    return { tasks, create, find, remove, done, update}
+    }
+
+    const todayTasks = () => {
+        // tasks.forEach(task => console.log(task.dueDate.getDate() === new Date().getDate()))
+        // console.log(tasks[2].dueDate.getDate() === new Date().getDate())
+        const conFecha = tasks.filter(task => task.dueDate).filter(task => task.dueDate.getDate() === new Date().getDate())
+        return conFecha
+    }
+
+    const filter = (by, value) => {
+        // urgente importante timer recurrentes realizadas no realizadas
+        // hoy mañana luego
+        // proyecto categoría 
+    }
+
+    return { tasks, create, find, remove, done, update, todayTasks}
 })()
 
 
-lib.create('@carajo me lleva')
-lib.create('#carajo me lleva')
+lib.create('@carajo me lleva hoy')
+lib.create('#carajo me lleva hoy')
+lib.create('hijo de los mil changos!!! @laPutaMadre mañana')
 console.log(lib.tasks)
-lib.update(1, 'hijo de los mil changos!!! @laPutaMadre')
+console.log(lib.todayTasks())
+lib.todayTasks()[0].updateTask('carajillloooooo')
 console.log(lib.tasks)
 

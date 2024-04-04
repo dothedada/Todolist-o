@@ -305,6 +305,7 @@ export default class Task {
 
     updateTask(prompt) {
         Object.keys(this).forEach((key) => Reflect.deleteProperty(this, key));
+        this.done = false;
         this.parseTask(prompt);
         this.createCleanTaks();
     }
