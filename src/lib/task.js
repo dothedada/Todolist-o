@@ -279,6 +279,7 @@ export default class Task {
         }
 
         this.taskRender = this.taskRender
+            .replace(exp.es.relevance, '')
             .replace(exp.project, '')
             .replace(exp.category, '')
             .replace(exp.es.timer, '')

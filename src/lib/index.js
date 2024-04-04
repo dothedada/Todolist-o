@@ -81,21 +81,20 @@ const getTasksByDay = (() => {
     };
 })();
 
-const filteredBy = (() => {
-    const importance = (tasks) => tasks.filter((task) => task.important);
-    const urgent = (tasks) => tasks.filter((task) => task.urgent);
-    const hasTimer = (tasks) => tasks.filter((task) => task.timer);
-    const done = (tasks) => tasks.filter((task) => task.done);
-    const undone = (tasks) => tasks.filter((task) => !task.done);
-    const recurrent = (tasks) => tasks.filter((task) => task.recurrent);
+const tasksFilteredBy = {
+    importance: (tasks) => tasks.filter((task) => task.important),
+    urgent: (tasks) => tasks.filter((task) => task.urgent),
+    hasTimer: (tasks) => tasks.filter((task) => task.timer),
+    done: (tasks) => tasks.filter((task) => task.done),
+    undone: (tasks) => tasks.filter((task) => !task.done),
+    recurrent: (tasks) => tasks.filter((task) => task.recurrent),
+};
 
-    return { importance, urgent, hasTimer, done, undone, recurrent };
-})();
 
 const makeDueTasksUrgent = () => {
     getTasksByDay.pastDue().forEach((task) => {
-        const modifiedTask = task 
-        modifiedTask.urgent = true
+        const modifiedTask = task;
+        modifiedTask.urgent = true;
     });
 };
 
@@ -125,7 +124,13 @@ const deleteDoneTasks = () => {
     doneTasks.forEach((task) => toDo.removeTask(task.taskID));
 };
 
-toDo.createTask('hoy vamos a saltar lazo');
-toDo.createTask('mañana vamos a saltar por la ventana');
-toDo.createTask('tratemos de no t:3h morir 20/3');
+const purgeToDo = () => {
+    deleteDoneTasks();
+    deleteTasksForgotten();
+    makeDueTasksUrgent();
+};
 
+toDo.createTask('hoy vamos a saltar lazo');
+toDo.createTask('mañana vamos a saltar * por la ventana @carajo');
+toDo.createTask('tratemos de no t:3h morir 20/3');
+console.log(tasksFilteredBy.importance(toDo.tasks))
