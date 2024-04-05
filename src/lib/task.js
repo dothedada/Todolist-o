@@ -4,11 +4,6 @@ import {
     getLastDayMonth,
     setNextWeekDay,
 } from './dateFunctions.js';
-// WARN:
-// 1) revisar el day cuando se establece un periodo de recurrecia futuro
-// 2) limpiar los regex date*
-
-let count = 0;
 
 export default class Task {
     constructor(prompt) {
@@ -23,10 +18,10 @@ export default class Task {
                 value: new Date(),
             },
             taskID: {
-                value: `toDo_${++count}`,
-                // value: `toDo_${new Date().getTime().toString(26)}_${Math.floor(
-                //     Math.random() * new Date().getTime(),
-                // ).toString(26)}`,
+                // value: `toDo_${++count}`,
+                value: `toDo_${new Date().getTime().toString(26)}_${Math.floor(
+                    Math.random() * new Date().getTime(),
+                ).toString(26)}`,
             },
         });
 
@@ -110,9 +105,9 @@ export default class Task {
             day < getLastDayMonth(dueDate) ? day : getLastDayMonth(dueDate),
         );
         dueDate.setMonth(month);
-        // if (dueDate < new Date()) {
-        //     dueDate.setFullYear(dueDate.getFullYear() + 1);
-        // }
+        if (dueDate < new Date()) {
+            dueDate.setFullYear(dueDate.getFullYear() + 1);
+        }
 
         this.dueDate = dueDate;
     }
