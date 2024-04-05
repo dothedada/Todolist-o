@@ -5,5 +5,6 @@ import { toDo, filteredBy, groupFuntions } from './toDo.js';
 //
 // WARN: revisar el day cuando se establece un periodo de recurrecia futuro
 
+groupFuntions.load()
 toDo.createTask('carajillo')
-console.log(toDo.tasks)
+filteredBy.importance()
