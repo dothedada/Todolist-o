@@ -1,9 +1,8 @@
 import './reset.css'
 import './styles.css'
-import { toDo, filteredBy, groupFuntions } from './toDo.js';
+import { toDo, filteredBy, groupFuntions } from './toDo';
 
 // TODO:
-// 1- Layout inicial, variables, inorporación de fuentes
 // 2- SVGs para la iconografía
 // 3- Comportamiento elementos insterfase (Botones, enlaces y demás)
 // 4- Formulario creación de tareas
@@ -16,6 +15,8 @@ import { toDo, filteredBy, groupFuntions } from './toDo.js';
 
 toDo.createTask('20/4 marihuaneros con dislexia')
 toDo.createTask('me lleva mañana')
+toDo.createTask('me lleva mañana')
+toDo.createTask('carajillo hoy')
 toDo.createTask('carajillo hoy')
 groupFuntions.sortByDate()
 filteredBy.importance(toDo.tasks)

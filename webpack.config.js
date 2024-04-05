@@ -12,6 +12,8 @@ module.exports = {
     mode,
     entry: './src/lib/index.js',
 
+	stats: 'none',
+
     devtool: modeConf ? 'inline-source-map' : false,
     devServer: {
         static: './public',
@@ -30,7 +32,8 @@ module.exports = {
     output: {
         filename: 'main.js',
         path: path.resolve(__dirname, 'public'),
-        clean: !modeConf,
+        // clean: !modeConf,
+        clean: true,
         assetModuleFilename: 'assets/[name][ext]',
     },
 
