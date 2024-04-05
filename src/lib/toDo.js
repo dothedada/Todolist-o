@@ -31,7 +31,7 @@ const toDo = {
 
     markTaskDone: (taskID) => {
         toDo.getTask(taskID).markDone();
-        update(taskID, toDo.getTask(taskID));
+        storage.update(taskID, toDo.getTask(taskID));
     },
     markTaskUndone: (taskID) => {
         toDo.getTask(taskID).markUndone();

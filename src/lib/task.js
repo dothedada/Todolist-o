@@ -1,9 +1,15 @@
 import { exp, daysWeek, months } from './data.js';
-import {
-    getDayMonthIndex,
-    getLastDayMonth,
-    setNextWeekDay,
-} from './dateFunctions.js';
+
+const getDayMonthIndex = (dataSource, userString) =>
+    dataSource.findIndex((element) => element === userString);
+
+const getLastDayMonth = (date) =>
+    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+const setNextWeekDay = (userDayIndex, baseDate) =>
+    userDayIndex < baseDate.getDay()
+        ? baseDate.getDate() + userDayIndex + (7 - baseDate.getDay())
+        : baseDate.getDate() + (userDayIndex - baseDate.getDay());
 
 export default class Task {
     constructor(prompt) {
@@ -191,7 +197,6 @@ export default class Task {
         const dateValues = this.recurrent.parameter;
         const nextDue = new Date(this.recurrent.baseDate);
 
-        // NOTE: loop para cuando la tarea se realiza después del nextDue
         do {
             if (/^month|^mes/.test(dateValues[2]))
                 nextDue.setMonth(nextDue.getMonth() + +dateValues[1]);
@@ -304,10 +309,6 @@ export default class Task {
         this.done = false;
         this.parseTask(prompt);
         this.createCleanTaks();
-    }
-
-    read() {
-        console.log(JSON.stringify(this, null, 2));
     }
 
     markDone() {

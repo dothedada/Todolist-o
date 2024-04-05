@@ -2,8 +2,8 @@
     "name": "",
     "version": "1.0.0",
     "description": "",
-    "type": "module",
     "scripts": {
+        "type": "module",
         "_serve": "browser-sync start --server --files *.html *.css *.js --browser 'firefox'",
         "dev": "webpack serve --mode=development --open-app-name firefox",
         "build": "webpack --mode=production",
