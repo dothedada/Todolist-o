@@ -51,7 +51,7 @@
 
         <header>
             <div class="logo"></div>
-            <form action="" id="create">\
+            <form class="create">\
                 <label for="newTask"></label>
                 <input type="text" id="newTask" class="create__input" placeholder="¿Qué quieres hacer?">
                 <button type="button" class="create__button create__button--create">
@@ -65,13 +65,153 @@
                     </span> 
                 </button>
             </form>
-            <div id="settings">
-                <button type="button">Birds eye</button>
-                <button type="button">Configuración</button>
+
+            <div class="confMenu">
+                <button type="button" class="confMenu__button confMenu__button--bird">
+                    <span class="sr-only">
+                        Birds eye
+                    </span> 
+                </button>
+                <button type="button" class="confMenu__button confMenu__button--settings">
+                    <span class="sr-only">
+                        Configuración
+                    </span> 
+                </button>
             </div>
         </header>
 
-        #settings>settings__
+        <aside class="settings">
+            <div id="settings__interfase">
+                <div id="interfase__lang"></div>
+                <div id="interfase__color"></div>
+                <div id="interfase__font"></div>
+            </div>
+            <div id="settings__storage">
+                <div id="storage__save"></div>
+                <div id="storage__load"></div>
+            </div>
+        </aside>
+
+        <main>
+            <div class="filter">
+                <div class="filter__status">
+                    <button class="filter__iconButton filter__iconButton--important" type="button">
+                        <span class="sr-only">
+                            icon_01
+                        </span>
+                    </button>
+                    <button class="filter__iconButton filter__iconButton--urgent" type="button">
+                        <span class="sr-only">
+                            icon_02
+                        </span>
+                    </button>
+                    <button class="filter__iconButton filter__iconButton--timer" type="button">
+                        <span class="sr-only">
+                            icon_03
+                        </span>
+                    </button>
+                    <button class="filter__iconButton filter__iconButton--done" type="button">
+                        <span class="sr-only">
+                            icon_04
+                        </span>
+                    </button>
+                    <button class="filter__iconButton filter__iconButton--recurrent" type="button">
+                        <span class="sr-only">
+                            icon_05
+                        </span>
+                    </button>
+                </div>
+
+                <div class="filter__project">
+                    <button class="filter__textButton" type="button"></button>
+                </div>
+
+                <div class="filter__category">
+                    <button class="filter__textButton" type="button"></button>
+                </div>
+
+                <div class="filter__mmejiaLogo">
+                    <a href="https://cv.mmejia.com">
+                        logo mmejia
+                    </a>
+                </div>
+            </div>
+
+            <div class="when">
+                <nav class="days">
+                    <ul>
+                        <li>
+                            <span class="days__currentFilter">
+                                filtro aplicado
+                            </span> 
+                            <button type="button" class="days__button">/Hoy</button>
+                        </li>
+                        <li>
+                            <button type="button" class="days__button">/Mañana</button>
+                        </li>
+                        <li>
+                            <button type="button" class="days__button">/Luego</button>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="dayTask">
+                    <!-- <div class="task"> -->
+                    <!-- <div class="task task--active"> -->
+                    <div class="task task--edit">
+                        <form>
+                            <input type="text">
+                            <button type="button" class="task__save">
+                                <span class="sr-only">
+                                    Guardar
+                                </span>
+                            </button>
+                            <button type="button" class="task__cancel">
+                                <span class="sr-only">
+                                    Cancelar
+                                </span>
+                            </button>
+                        </form>
+                        <!-- <p class="task__descriptior"></p> -->
+
+                        <!-- <button type="button" class="task__checker">
+                            <span class="sr-only">
+                                marcar como realizada
+                            </span>
+                        </button> -->
+
+
+                        <!-- que vaya agregando la información del prompt a medida va surgiendo, adaptándose al siguiente orden-->
+                        <div id="task__info">
+                            <div class="info__type">
+                                <span class="type__important"></span>
+                                <span class="type__urgent"></span>
+                                <span class="type__recurrent"></span>
+                                <span class="type__timer"></span>
+                            </div>
+                            
+                            <div class="info__clasification">
+                                <span class="info__project"></span>
+                                <span class="info__categories"></span>
+                            </div>
+
+                            <div class="info__dueDate"></div>
+                            <div class="info__chars"></div>
+                        </div>
+
+                        <button type="button" class="task__remove">
+                            <span class="sr-only">
+                                Eliminar
+                            </span>
+                        </button>
+                    </div>
+
+                </div>
+                <div class="dayTask dayTask--inactive"></div>
+                <div class="dayTask dayTask--inactive"></div>
+            </div>
+        </main>
+
 
     </body>
 </html>
